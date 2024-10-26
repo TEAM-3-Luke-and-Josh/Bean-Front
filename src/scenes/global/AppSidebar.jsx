@@ -55,20 +55,19 @@ const AppSidebar = () => {
                             display="flex"
                             justifyContent="space-between"
                             alignItems="center"
-                            ml="15px"
                         >
-                        <Typography variant="h3" color={colors.brown[100]}>
-                            Bean Scene
-                        </Typography>
                         <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                             <MenuOutlinedIcon style={{ color: 'white' }} />
                         </IconButton>
+                        <Typography variant="h3" color={colors.brown[100]}>
+                            Bean Scene
+                        </Typography>
                         </Box>
                     )}
                     </MenuItem>
 
                     {/* MENU ITEMS */}
-                    <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+                    <Box >
                         <Item 
                             title="Dashboard"
                             to="/"
@@ -77,7 +76,7 @@ const AppSidebar = () => {
                             setSelected={setSelected}
                         />
                     </Box>
-                    <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+                    <Box>
                         <Item 
                             title="Reservations"
                             to="/reservations"
@@ -86,7 +85,7 @@ const AppSidebar = () => {
                             setSelected={setSelected}
                         />
                     </Box>
-                    <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+                    <Box>
                         <Item 
                             title="Add Reservation"
                             to="/form"
@@ -95,7 +94,7 @@ const AppSidebar = () => {
                             setSelected={setSelected}
                         />
                     </Box>
-                    <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+                    <Box>
                         <Item 
                             title="Help"
                             to="/help"
@@ -104,7 +103,7 @@ const AppSidebar = () => {
                             setSelected={setSelected}
                         />
                     </Box>
-                    <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+                    <Box>
                         <Item 
                             title="Settings"
                             to="/settings"

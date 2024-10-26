@@ -11,19 +11,33 @@ import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-// GET CURRENT DATE FOR DISPLAY
-function getDate() {
-    const today = new Date();
+// FORMAT DATE
+const formatDate = (date) => {
     const options = { weekday: 'short', year: 'numeric', month: 'short', day: '2-digit' };
-    const formattedDate = today.toLocaleDateString('en-US', options);
-    return formattedDate;
-}
+    return date.toLocaleDateString('en-US', options);
+};
 
 const Topbar = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const [currentDate] = useState(getDate());
+    //FOR DATE SELECTOR
+    const [date, setDate] = useState(new Date());
+    //FOR LOGIN DATE TO STAY SAME - If I used the above const whenever the state was changed with the selector it would
+    //update the date in the login area at the top right and this was undesirable
+    const currentDate = new Date();
 
+    //NAVIGATE TO NEXT DAY
+    const nextDayNavi = () => {
+        const nextDay = new Date(date)
+        nextDay.setDate(date.getDate() + 1) //MOVE FORWARD ONE DAY
+        setDate(nextDay)
+    };
+    //NAVIGATE TO PREVIOUS DAY
+    const prevDayNavi = () => {
+        const prevDay = new Date(date)
+        prevDay.setDate(date.getDate() - 1) //MOVE FORWARD ONE DAY
+        setDate(prevDay)
+    };
     return (
         <Box 
         display="flex" 
@@ -55,18 +69,18 @@ const Topbar = () => {
 
                 {/* DATE SELECTION */}
                 <Box>
-                    <IconButton sx={{ p: 1, color: "white" }}>
+                    <IconButton onClick={prevDayNavi} sx={{ p: 1, color: "white" }}>
                         <ChevronLeftIcon />
                     </IconButton>
-                    <span>{currentDate}</span>
-                    <IconButton sx={{ p: 1, color: "white" }}>
+                    <span>{formatDate(date)}</span>
+                    <IconButton onClick={nextDayNavi} sx={{ p: 1, color: "white" }}>
                         <ChevronRightIcon />
                     </IconButton>
                 </Box>
 
                 {/* TIME AND LOGIN DISPLAY */}
                 <Box padding="0">
-                    <p className="tight"><Clock /> | {currentDate}</p>
+                    <p className="tight"><Clock /> | {formatDate(currentDate)}</p>
                     <p className="tight small">josh@beanscene.com.au</p>
                 </Box>
             </Box>
