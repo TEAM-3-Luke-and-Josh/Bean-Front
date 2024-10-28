@@ -8,7 +8,6 @@ import StatBox from "../../components/StatBox";
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import AcUnitIcon from '@mui/icons-material/AcUnit';
 
 const Dashboard = () => {
     const theme = useTheme();
@@ -28,7 +27,7 @@ const Dashboard = () => {
                 gap="20px">
 
                 {/* ROW 1 */}
-                <Box gridColumn="span 4" backgroundColor={colors.sand[800]} display="flex" alignItems="center" justifyContent="center">
+                <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
                     <StatBox
                         title="85"
                         subtitle="Customers"
@@ -39,7 +38,7 @@ const Dashboard = () => {
 
                     </StatBox>
                 </Box>
-                <Box gridColumn="span 4" backgroundColor={colors.sand[800]} display="flex" alignItems="center" justifyContent="center">
+                <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
                     <StatBox
                         title="125"
                         subtitle="Orders"
@@ -50,7 +49,7 @@ const Dashboard = () => {
 
                     </StatBox>
                 </Box>
-                <Box gridColumn="span 4" backgroundColor={colors.sand[800]} display="flex" alignItems="center" justifyContent="center">
+                <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
                     <StatBox
                         title="12"
                         subtitle="Reservations"
@@ -66,7 +65,7 @@ const Dashboard = () => {
                 <Box
                     gridColumn="span 8"
                     gridRow="span 2"
-                    backgroundColor={colors.sand[800]}
+                    backgroundColor={colors.brown[100]}
                 >
                     <Box
                         mt="25px"
@@ -76,10 +75,10 @@ const Dashboard = () => {
                         alignItems="center"
                     >
                         <Box>
-                            <Typography variant="h5" fontWeight="600" color={colors.green[100]}>
+                            <Typography variant="h5" fontWeight="600">
                                 Revenue Generated
                             </Typography>
-                            <Typography variant="h3" fontWeight="500" color={colors.green[200]}>
+                            <Typography variant="h3" fontWeight="500">
                                 $59,342.00
                             </Typography>
                         </Box>
