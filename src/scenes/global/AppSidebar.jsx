@@ -53,7 +53,9 @@ const AppSidebar = () => {
                     {!isCollapsed && (
                         <Box
                             display="flex"
+                            justifyContent="space-between"
                             alignItems="center"
+                            ml="15px"
                         >
                         <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                             <MenuOutlinedIcon style={{ color: 'white' }} />
@@ -66,7 +68,7 @@ const AppSidebar = () => {
                     </MenuItem>
 
                     {/* MENU ITEMS */}
-                    <Box >
+                    <Box>
                         <Item 
                             title="Dashboard"
                             to="/"
