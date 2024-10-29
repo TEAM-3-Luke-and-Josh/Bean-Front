@@ -1,6 +1,6 @@
 import { Box, IconButton, useTheme } from "@mui/material";
-import React, { useState } from "react";
-import { tokens } from "../../theme";
+import React, { useState, useContext } from "react";
+import { ColorModeContext, tokens } from "../../theme";
 import Clock from '../../components/clock';
 
 // IMAGES
@@ -10,6 +10,7 @@ import LogoWhite from "../../images/logo_white.png";
 import TableRestaurantIcon from '@mui/icons-material/TableRestaurant';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 
 // FORMAT DATE
 const formatDate = (date) => {
@@ -56,7 +57,6 @@ const Topbar = () => {
                 justifyContent="space-between" 
                 alignItems="center"
                 marginLeft="50px"
-                marginRight="50px"
             >
 
                 {/* TOTAL COVERS */}
@@ -64,7 +64,7 @@ const Topbar = () => {
                     <IconButton sx={{ p: 1, color: "white" }}>
                         <TableRestaurantIcon />
                     </IconButton>
-                    <span><b>27</b> Covers</span>
+                    <span className="white-override"><b>27</b> Covers</span>
                 </Box>
 
                 {/* DATE SELECTION */}
@@ -72,16 +72,22 @@ const Topbar = () => {
                     <IconButton onClick={prevDayNavi} sx={{ p: 1, color: "white" }}>
                         <ChevronLeftIcon />
                     </IconButton>
-                    <span>{formatDate(date)}</span>
+                    <span className="white-override">{formatDate(date)}</span>
                     <IconButton onClick={nextDayNavi} sx={{ p: 1, color: "white" }}>
                         <ChevronRightIcon />
                     </IconButton>
                 </Box>
 
                 {/* TIME AND LOGIN DISPLAY */}
-                <Box padding="0">
-                    <p className="tight"><Clock /> | {formatDate(currentDate)}</p>
-                    <p className="tight small">josh@beanscene.com.au</p>
+
+                <Box display="flex">
+                    <Box padding="0" mt="5px" mr="10px" textAlign="right">
+                        <p className="tight white-override"><Clock /> | {formatDate(currentDate)}</p>
+                        <p className="tight small white-override">josh@beanscene.com.au</p>
+                    </Box>
+                    <IconButton sx={{ p: 1, color: "white" }} onClick={colorMode.toggleColorMode}>
+                        <ColorLensIcon style={{ fontSize: '36px', p: '0px', m: '0px' }} />
+                    </IconButton>
                 </Box>
             </Box>
 

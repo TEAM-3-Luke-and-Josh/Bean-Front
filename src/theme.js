@@ -6,7 +6,7 @@ export const tokens = (mode) => ({
     ...(mode === 'dark'
         ? {
             brown: {
-                100: "#17100d",
+                100: "#0072B2",
                 200: "#2e211a",
                 300: "#453126",
                 400: "#5c4233",
@@ -32,7 +32,7 @@ export const tokens = (mode) => ({
                 200: "#415747",
                 300: "#62826a",
                 400: "#82ae8e",
-                500: "#a3d9b1",
+                500: "#0072B2",
                 600: "#b5e1c1",
                 700: "#c8e8d0",
                 800: "#daf0e0",
@@ -43,7 +43,7 @@ export const tokens = (mode) => ({
                 200: "#613838",
                 300: "#915454",
                 400: "#c27070",
-                500: "#f28c8c",
+                500: "#E69F00",
                 600: "#f5a3a3",
                 700: "#f7baba",
                 800: "#fad1d1",
@@ -62,7 +62,7 @@ export const tokens = (mode) => ({
             },
         } : {
             brown: {
-                100: "#e3dcd9",
+                100: "#f5f5f5",
                 200: "#c7bab3",
                 300: "#ab978c",
                 400: "#8f7566",
@@ -130,7 +130,7 @@ export const themeSettings = (mode) => {
             ...(mode === 'dark'
                 ? {
                     primary: {
-                        main: colors.brown[500],
+                        main: "#ffffff",
                     },
                     secondary: {
                         main: colors.yellow[500],
@@ -141,7 +141,7 @@ export const themeSettings = (mode) => {
                         light: colors.pink[100]
                     },
                     background: {
-                        default: colors.brown[500],
+                        default: "#000",
                     }
                 } : {
                     primary: {

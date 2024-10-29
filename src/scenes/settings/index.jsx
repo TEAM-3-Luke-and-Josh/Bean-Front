@@ -1,3 +1,4 @@
+
 import { Box } from '@mui/material';
 import Header from "../../components/header.jsx"
 
@@ -8,7 +9,7 @@ const Settings = () => {
                 <Header title="Settings" subtitle="Welcome to your Settings" />
             </Box>
         </Box>
-    )
+    );
 }
 
 export default Settings;
