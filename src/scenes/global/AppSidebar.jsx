@@ -53,7 +53,6 @@ const AppSidebar = () => {
                     {!isCollapsed && (
                         <Box
                             display="flex"
-                            justifyContent="space-between"
                             alignItems="center"
                         >
                         <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
