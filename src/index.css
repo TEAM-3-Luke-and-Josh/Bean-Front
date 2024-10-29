@@ -8,7 +8,6 @@ body,
   width: 100%;
   height: 100%;
   font-family: "Poppins", sans-serif;
-  color: white;
 }
 
 .app {
@@ -40,6 +39,10 @@ body,
 
 .small {
   font-size: 12px;
+}
+
+.white-override {
+  color: #FFF;
 }
 
 .ps-sidebar-container {
