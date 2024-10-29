@@ -18,12 +18,12 @@ const Help = () => {
                 <Accordian>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            An Important Question!
+                            Navigating the application
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel commodi voluptas error quos molestiae tempora, veritatis ipsum quod a, laborum ut eos at nihil magni omnis quidem deserunt. Deleniti, iste!
+                            When trying to Navigate the application, it is best to tap the burger menu icon to display the name of each page next to their icons.
                         </Typography>
                     </AccordionDetails>
                 </Accordian>
@@ -32,12 +32,12 @@ const Help = () => {
                 <Accordian>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            An even MORE important question.
+                            How do I save a Reservation?
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel commodi voluptas error quos molestiae tempora, veritatis ipsum quod a, laborum ut eos at nihil magni omnis quidem deserunt. Deleniti, iste!
+                            Navigate to the Add a Reservation page (the plus on the navbar), input the necessary fields and then click/tap on the ADD RESERVATION button.
                         </Typography>
                     </AccordionDetails>
                 </Accordian>
@@ -46,12 +46,12 @@ const Help = () => {
                 <Accordian>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            Something less important.
+                            Viewing Reservations
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel commodi voluptas error quos molestiae tempora, veritatis ipsum quod a, laborum ut eos at nihil magni omnis quidem deserunt. Deleniti, iste!
+                            If you would like to view more details of each Reservation, tap/click on the Reservation in the table and a popup should appear with the necessary information.
                         </Typography>
                     </AccordionDetails>
                 </Accordian>
@@ -60,12 +60,21 @@ const Help = () => {
                 <Accordian>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            Something dumb we don't want you to do.
+                            Terminology
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel commodi voluptas error quos molestiae tempora, veritatis ipsum quod a, laborum ut eos at nihil magni omnis quidem deserunt. Deleniti, iste!
+                            If any of the terminology on this application is confusing this will serve to de-jargon it:  
+                        </Typography>
+                        <Typography>
+                            Covers = Number of Customers currently in the building.
+                        </Typography>
+                        <Typography>
+                            PAX = Number of Customers per Reservation (A PAX of 12 means that there are 12 people for that Reservation).
+                        </Typography>
+                        <Typography>
+                            T# = Table number, the table that the Reservation will be sat at.
                         </Typography>
                     </AccordionDetails>
                 </Accordian>
@@ -74,12 +83,12 @@ const Help = () => {
                 <Accordian>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            The last question.
+                            Need further help?
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                         <Typography>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel commodi voluptas error quos molestiae tempora, veritatis ipsum quod a, laborum ut eos at nihil magni omnis quidem deserunt. Deleniti, iste!
+                            Contact the support team for this application at: gelossupport@gelosmail.com
                         </Typography>
                     </AccordionDetails>
                 </Accordian>
