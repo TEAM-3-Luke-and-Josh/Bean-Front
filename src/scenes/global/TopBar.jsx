@@ -21,6 +21,8 @@ const formatDate = (date) => {
 const Topbar = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const colorMode = useContext(ColorModeContext);
+
     //FOR DATE SELECTOR
     const [date, setDate] = useState(new Date());
     //FOR LOGIN DATE TO STAY SAME - If I used the above const whenever the state was changed with the selector it would
@@ -39,6 +41,7 @@ const Topbar = () => {
         prevDay.setDate(date.getDate() - 1) //MOVE FORWARD ONE DAY
         setDate(prevDay)
     };
+
     return (
         <Box 
         display="flex" 
@@ -70,16 +73,15 @@ const Topbar = () => {
                 {/* DATE SELECTION */}
                 <Box>
                     <IconButton onClick={prevDayNavi} sx={{ p: 1, color: "white" }}>
-                        <ChevronLeftIcon />
+                        <ChevronLeftIcon sx={{ fontSize: "40px" }}/>
                     </IconButton>
                     <span className="white-override">{formatDate(date)}</span>
                     <IconButton onClick={nextDayNavi} sx={{ p: 1, color: "white" }}>
-                        <ChevronRightIcon />
+                        <ChevronRightIcon sx={{ fontSize: "40px" }}/>
                     </IconButton>
                 </Box>
 
                 {/* TIME AND LOGIN DISPLAY */}
-
                 <Box display="flex">
                     <Box padding="0" mt="5px" mr="10px" textAlign="right">
                         <p className="tight white-override"><Clock /> | {formatDate(currentDate)}</p>
