@@ -2,7 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import { DataGrid } from "@mui/x-data-grid"
 import Header from "../../components/header.jsx"
 import { tokens } from "../../theme.js"
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { DateContext } from '../global/TopBar.jsx';
 
 // ICONS
@@ -33,8 +33,8 @@ const Reservations = () => {
                 
                 const data = await response.json();
                 
-                // Transform the data to match DataGrid requirements
-                const transformedData = data.map(reservation => ({
+                // Map the data to match DataGrid requirements
+                const mappedData = data.map(reservation => ({
                      id: reservation.id,
                      Start: new Date(reservation.Start),
                      name: `${reservation.name}`,
@@ -44,11 +44,10 @@ const Reservations = () => {
                      Special: reservation.Special || "no"
                 }));
                 
-                console.log(response);
-                setReservations(transformedData);
+                setReservations(mappedData);
             } catch (error) {
                 console.error('Error fetching reservations:', error);
-                // Handle the error appropriately
+                // Map empty reservations in case of failed fetch.
                 setReservations([]);
             } finally {
                 setLoading(false);
