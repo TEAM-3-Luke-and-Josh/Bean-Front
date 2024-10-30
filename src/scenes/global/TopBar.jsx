@@ -1,5 +1,5 @@
 import { Box, IconButton, useTheme } from "@mui/material";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, createContext } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import Clock from '../../components/clock';
 
@@ -18,28 +18,41 @@ const formatDate = (date) => {
     return date.toLocaleDateString('en-US', options);
 };
 
+// Create a context for the selected date
+export const DateContext = createContext();
+
+// CONTEXT FOR PASSING DATES
+export const DateProvider = ({ children }) => {
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    
+    return (
+      <DateContext.Provider value={{ selectedDate, setSelectedDate }}>
+        {children}
+      </DateContext.Provider>
+    );
+  };
+
 const Topbar = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
+    const { selectedDate, setSelectedDate } = useContext(DateContext);
 
-    //FOR DATE SELECTOR
-    const [date, setDate] = useState(new Date());
     //FOR LOGIN DATE TO STAY SAME - If I used the above const whenever the state was changed with the selector it would
     //update the date in the login area at the top right and this was undesirable
     const currentDate = new Date();
 
     //NAVIGATE TO NEXT DAY
     const nextDayNavi = () => {
-        const nextDay = new Date(date)
-        nextDay.setDate(date.getDate() + 1) //MOVE FORWARD ONE DAY
-        setDate(nextDay)
+        const nextDay = new Date(selectedDate)
+        nextDay.setDate(selectedDate.getDate() + 1)
+        setSelectedDate(nextDay)
     };
     //NAVIGATE TO PREVIOUS DAY
     const prevDayNavi = () => {
-        const prevDay = new Date(date)
-        prevDay.setDate(date.getDate() - 1) //MOVE FORWARD ONE DAY
-        setDate(prevDay)
+        const prevDay = new Date(selectedDate)
+        prevDay.setDate(selectedDate.getDate() - 1)
+        setSelectedDate(prevDay)
     };
 
     return (
@@ -75,7 +88,7 @@ const Topbar = () => {
                     <IconButton onClick={prevDayNavi} sx={{ p: 1, color: "white" }}>
                         <ChevronLeftIcon sx={{ fontSize: "40px" }}/>
                     </IconButton>
-                    <span className="white-override">{formatDate(date)}</span>
+                    <span className="white-override">{formatDate(selectedDate)}</span>
                     <IconButton onClick={nextDayNavi} sx={{ p: 1, color: "white" }}>
                         <ChevronRightIcon sx={{ fontSize: "40px" }}/>
                     </IconButton>

@@ -2,6 +2,7 @@ import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { Routes , Route } from "react-router-dom";
 import { Box } from "@mui/material";
+import { DateProvider } from "./scenes/global/TopBar.jsx";
 
 // COMPONENETS
 import Topbar from './scenes/global/TopBar.jsx'
@@ -21,6 +22,7 @@ function App() {
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
+        <DateProvider>
         <CssBaseline />
         <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
           <Topbar />
@@ -37,6 +39,7 @@ function App() {
             </Box>
           </Box>
         </Box>
+        </DateProvider>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

@@ -2,7 +2,8 @@ import { Box, useTheme } from '@mui/material';
 import { DataGrid } from "@mui/x-data-grid"
 import Header from "../../components/header.jsx"
 import { tokens } from "../../theme.js"
-import { mockReservationData } from "../../data/mockData"
+import { useState, useEffect, createContext, useContext } from 'react';
+import { DateContext } from '../global/TopBar.jsx';
 
 // ICONS
 import Person4Icon from '@mui/icons-material/Person4';
@@ -11,11 +12,56 @@ import CakeIcon from '@mui/icons-material/Cake';
 const Reservations = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { selectedDate } = useContext(DateContext);
+    const [reservations, setReservations] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchReservations = async () => {
+            try {
+                setLoading(true);
+                // Format date to YYYY-MM-DD for API and adjusted for localtimezone.
+                const localDate = new Date(selectedDate);
+                localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+                const formattedDate = localDate.toISOString().split('T')[0];
+
+                const response = await fetch(`http://localhost:3001/reservation/${formattedDate}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Transform the data to match DataGrid requirements
+                const transformedData = data.map(reservation => ({
+                     id: reservation.id,
+                     Start: new Date(reservation.Start),
+                     name: `${reservation.name}`,
+                     phone: reservation.phone,
+                     Table: reservation.Table,
+                     PAX: reservation.PAX,
+                     Special: reservation.Special || "no"
+                }));
+                
+                console.log(response);
+                setReservations(transformedData);
+            } catch (error) {
+                console.error('Error fetching reservations:', error);
+                // Handle the error appropriately
+                setReservations([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReservations();
+    }, [selectedDate]); 
 
     const columns = [
         { field: "Start", headerName: "Arrival", headerAlign: "left", cellClassName: "time-column--cell", renderCell: (params) => {
                 const date = new Date(params.value);
-                return date.toLocaleTimeString('en-US', {
+                return date.toLocaleTimeString('en-AU', {
                     hour: 'numeric',
                     minute: 'numeric',
                     hour12: true
@@ -68,8 +114,9 @@ const Reservations = () => {
                 }
             }}>
                 <DataGrid 
-                    rows={mockReservationData}
+                    rows={reservations}
                     columns={columns}
+                    loading={loading}
                     initialState={{
                         sorting: {
                             sortModel: [{ field: 'Start', sort: 'asc' }]
