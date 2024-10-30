@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, Modal, Typography, Button } from '@mui/material';
 import { DataGrid } from "@mui/x-data-grid"
 import Header from "../../components/header.jsx"
 import { tokens } from "../../theme.js"
@@ -15,6 +15,28 @@ const Reservations = () => {
     const { selectedDate } = useContext(DateContext);
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
+
+
+    //This will all be used in the onRowClick() in the data grid in the return block
+    //SET STATE TO HANDLE MODALS - initially set to false as a modal should be closed until the state is updated
+    const [openModal, setOpenModal] = useState(false);
+    //STATE TO HANDLE SELECTED RESERVATION - initially set as null as no reservation is selected and state will be updated when one is selected
+    const [selectedRes, setSelectedRes] = useState(null)
+    /**
+     * FUNCTION TO UPDATE STATES ON ROW SELECT
+     * @param {*} params Data that is stored in the row
+     */
+    const rowClickStateUpdate = (params) => {
+        setSelectedRes(params.row); //Sets the selected reservation to the clicked row's data
+        setOpenModal(true); //Opens the modal
+    }
+    /**
+     * FUNCTION TO CLOSE OUT OF MODAL AND RESET SELECTED RES DATA
+     */
+    const closeModal = () => {
+        setSelectedRes(null); //Sets null data for selected reservation as no reservation is now seleted
+        setOpenModal(false); //Closes modal by setting it to false
+    }
 
     useEffect(() => {
         const fetchReservations = async () => {
@@ -122,9 +144,60 @@ const Reservations = () => {
                             sortModel: [{ field: 'Start', sort: 'asc' }]
                         }
                     }}
+                    onRowClick={rowClickStateUpdate}
                 />
             </Box>
+            {/*MODAL CREATION */}
+            <Modal
+                open={openModal}
+                onClose={closeModal}
+            >
+                <Box>
+                    {/*Only renders the content inside modal if there is a reservation selected*/}
+                    {selectedRes && (
+                    <Box 
+                        //Placeholder styling from chatgpt just to make sure it works, REPLACE IN FINAL
+                        sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)', // Center it
+                        width: 400, // Customize width as needed
+                        bgcolor: 'white', // White background
+                        borderRadius: 2, // Rounded corners
+                        boxShadow: 24, // Standard modal shadow
+                        p: 4, // Padding for the inner content
+                    }}>
+                        <Typography variant='h2'>View Reservation:</Typography>
+                        <Typography>
+                            Start Time: {selectedRes.Start.toLocaleTimeString("en-AU", {
+                                hour: "numeric",
+                                minute: "numeric",
+                                hour12: true
+                                        })}
+                        </Typography>
+                        <Typography>Name: {selectedRes.name}</Typography>
+                        <Typography>Phone: {selectedRes.phone}</Typography>
+                        <Typography>Table: {selectedRes.Table}</Typography>
+                        <Typography>PAX: {selectedRes.PAX}</Typography>
+                        <Typography>Special Requests: {selectedRes.Special}</Typography>
+                        {/* Will need to update the colours and styling of the buttons*/}
+                        <Button variant="contained" color="success" size="large">
+                            Update Res
+                        </Button>
+                        <Button variant="contained" sx={{bgcolor: '#ff3d00'}} size="large">
+                            Delete Res
+                        </Button>
+                        <Button variant="contained" onClick={closeModal} size="small">
+                            Close
+                        </Button>
+                    </Box>
+                    )}
+                </Box>
+            </Modal>
         </Box>
+
+        
     )
 }
 
