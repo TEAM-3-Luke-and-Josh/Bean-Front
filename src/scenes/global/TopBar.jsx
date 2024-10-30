@@ -1,5 +1,5 @@
 import { Box, IconButton, useTheme } from "@mui/material";
-import React, { useState, useContext, createContext } from "react";
+import React, { useState, useContext, useEffect, createContext } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import Clock from '../../components/clock';
 
@@ -37,6 +37,8 @@ const Topbar = () => {
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
     const { selectedDate, setSelectedDate } = useContext(DateContext);
+    const [loading, setLoading] = useState(true);
+    const [resCount, setResCount] = useState(false);
 
     //FOR LOGIN DATE TO STAY SAME - If I used the above const whenever the state was changed with the selector it would
     //update the date in the login area at the top right and this was undesirable
@@ -54,6 +56,49 @@ const Topbar = () => {
         prevDay.setDate(selectedDate.getDate() - 1)
         setSelectedDate(prevDay)
     };
+
+    useEffect(() => {
+        const fetchReservationCount = async () => {
+            try {
+                setLoading(true);
+
+                // Format date to YYYY-MM-DD for API and adjusted for localtimezone.
+                const localDate = new Date(selectedDate);
+                localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+                const formattedDate = localDate.toISOString().split('T')[0];
+
+                const response = await fetch(`http://localhost:3001/reservation/${formattedDate}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Map the data before counting.
+                const mappedData = data.map(reservation => ({
+                    id: reservation.id,
+                    Start: new Date(reservation.Start),
+                    name: `${reservation.name}`,
+                    phone: reservation.phone,
+                    Table: reservation.Table,
+                    PAX: reservation.PAX,
+                    Special: reservation.Special || "no"
+               }));
+               
+               setResCount(mappedData.length);
+                
+            } catch (error) {
+                console.error('Error fetching reservations:', error);
+                // Res count is 0 in case of a failed fetch.
+                setResCount(0);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReservationCount();
+    }, [selectedDate]);
 
     return (
         <Box 
@@ -80,7 +125,10 @@ const Topbar = () => {
                     <IconButton sx={{ p: 1, color: "white" }}>
                         <TableRestaurantIcon />
                     </IconButton>
-                    <span className="white-override"><b>27</b> Covers</span>
+                    <span className="white-override"><b>{loading ? (<span>Loading...</span>
+                    ) : (
+                        <span>{resCount}</span>
+                    )}</b> Covers</span>
                 </Box>
 
                 {/* DATE SELECTION */}
