@@ -5,6 +5,10 @@ import { createTheme } from "@mui/material/styles";
 export const tokens = (mode) => ({
     ...(mode === 'dark'
         ? {
+            swap: {
+                100: "#FFF",
+                200: "#000",
+            },
             brown: {
                 100: "#0072B2",
                 200: "#2e211a",
@@ -56,11 +60,15 @@ export const tokens = (mode) => ({
                 400: "#c7c2b7",
                 500: "#f9f3e5",
                 600: "#faf5ea",
-                700: "#e3b23c",
+                700: "#FFFFFF",
                 800: "#fdfaf5",
                 900: "#fefdfa",
             },
         } : {
+            swap: {
+                100: "#FFF",
+                200: "#000",
+            },
             brown: {
                 100: "#f5f5f5",
                 200: "#c7bab3",
@@ -141,7 +149,7 @@ export const themeSettings = (mode) => {
                         light: colors.pink[100]
                     },
                     background: {
-                        default: "#000",
+                        default: "#222",
                     }
                 } : {
                     primary: {
