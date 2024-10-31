@@ -86,8 +86,14 @@ const Topbar = () => {
                     Special: reservation.Special || "no"
                }));
                
-               setResCount(mappedData.length);
-                
+               // Calculate total PAX count, not just reservations.
+               let tempResCount = 0;
+               mappedData.forEach(reservation => {
+                tempResCount += reservation.PAX;
+               });
+
+               setResCount(tempResCount);
+               
             } catch (error) {
                 console.error('Error fetching reservations:', error);
                 // Res count is 0 in case of a failed fetch.
