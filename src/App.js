@@ -1,6 +1,6 @@
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { Routes , Route } from "react-router-dom";
+import { Routes , Route, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 import { DateProvider } from "./scenes/global/TopBar.jsx";
 
@@ -19,6 +19,12 @@ import Settings from './scenes/settings'
 function App() {
   const [theme, colorMode] = useMode();
 
+  /**Create location object and then get the current location/path */
+  const location = useLocation();
+  const currentPath = location.pathname
+
+
+
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -27,7 +33,7 @@ function App() {
         <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
           <Topbar />
           <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            <AppSidebar />
+            <AppSidebar currentPath={currentPath}/>
             <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
