@@ -14,11 +14,12 @@ import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-const AppSidebar = () => {
+/**Now takes a param for the current path and uses it for the styling and track current path */
+const AppSidebar = ({currentPath}) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(true);
-    const [selected,  setSelected] = useState("Dashboard");
+    // [selected, setSelected] removed to solely use the useLocation() import in App.js to track current path
 
     const handleLogout = () => {
         AuthService.logout();
@@ -52,16 +53,14 @@ const AppSidebar = () => {
                         onClick={() => setIsCollapsed(!isCollapsed)}
                         icon={isCollapsed ? <MenuOutlinedIcon style={{ color: 'white' }} /> : undefined }
                         style={{
-                            margin: "10px 0 20px 0",
+                            margin: "10px 0 0 0",
                             color: "white",
                         }}
                     >
                     {!isCollapsed && (
                         <Box
                             display="flex"
-                            justifyContent="space-between"
                             alignItems="center"
-                            ml="15px"
                         >
                         <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                             <MenuOutlinedIcon style={{ color: 'white' }} />
@@ -75,48 +74,43 @@ const AppSidebar = () => {
 
                     {/* MENU ITEMS */}
                     <Box>
-                        <Item 
+                        <Item
+                            active={currentPath === "/"} 
                             title="Dashboard"
                             to="/"
                             icon={<HomeOutlinedIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>
-                        <Item 
+                        <Item
+                            active={currentPath === "/reservations"} 
                             title="Reservations"
                             to="/reservations"
                             icon={<LibraryBooksIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>
                         <Item 
+                            active={currentPath === "/form"}
                             title="Add Reservation"
                             to="/form"
                             icon={<AddIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>
                         <Item 
+                            active={currentPath === "/help"}
                             title="Help"
                             to="/help"
                             icon={<QuestionMarkIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>
                         <Item 
+                            active={currentPath === "/settings"}
                             title="Settings"
                             to="/settings"
                             icon={<SettingsIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box mt="auto" mb={2}>
