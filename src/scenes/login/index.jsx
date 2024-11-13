@@ -1,11 +1,9 @@
-// src/scenes/login/index.jsx
+//src/scenes/login/index.jsx
 import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { useState } from "react";
 //import { useNavigate } from "react-router-dom";
 import AuthService from "../../services/authService";
-
-// Optional - import your logo
 import LogoWhite from "../../images/logo_white.png";
 
 const Login = () => {

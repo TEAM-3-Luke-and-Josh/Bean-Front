@@ -72,7 +72,6 @@ class AuthService {
         }
     }
 
-
     static getUserInfo() {
         return {
             username: localStorage.getItem('username'),
