@@ -2,9 +2,10 @@ import { Box, useTheme, Modal, Typography, Button, Stack, TextField} from '@mui/
 import { DataGrid } from "@mui/x-data-grid"
 import Header from "../../components/header.jsx"
 import { tokens } from "../../theme.js"
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { DateContext } from '../global/TopBar.jsx';
 import { Formik, Form } from 'formik'
+import ApiClient from '../../services/apiClient';
 
 const Reservations = () => {
     const theme = useTheme();
@@ -17,6 +18,42 @@ const Reservations = () => {
     const [selectedRes, setSelectedRes] = useState(null)
     const [apiStatus, setApiStatus] = useState(null);
 
+    const fetchReservations = useCallback(async () => {
+        try {
+            setLoading(true);
+            const localDate = new Date(selectedDate);
+            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+            const formattedDate = localDate.toISOString().split('T')[0];
+    
+            const data = await ApiClient.get(`/reservations/date/${formattedDate}`);
+            
+            const mappedData = data.map(reservation => ({
+                id: reservation.id,
+                Start: new Date(reservation.start),
+                name: reservation.name,
+                phone: reservation.phone,
+                PAX: reservation.numberOfGuests,
+                ResStatus: reservation.status,
+                sittingId: reservation.sitting.sittingID,
+                sittingType: reservation.sitting.sittingType
+            }));
+    
+            setReservations(mappedData);
+        } catch (error) {
+            console.error('Error fetching reservations:', error);
+            setReservations([]);
+            if (error.message === 'Session expired. Please login again.') {
+                return;
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedDate]);
+
+    useEffect(() => {
+        fetchReservations();
+    }, [fetchReservations])
+
     const rowClickStateUpdate = (params) => {
         setSelectedRes(params.row); 
         setOpenModal(true);
@@ -26,47 +63,6 @@ const Reservations = () => {
         setSelectedRes(null);
         setOpenModal(false);
     }
-
-    useEffect(() => {
-        const fetchReservations = async () => {
-            try {
-                setLoading(true);
-                // Format date to YYYY-MM-DD for API and adjusted for localtimezone.
-                const localDate = new Date(selectedDate);
-                localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-                const formattedDate = localDate.toISOString().split('T')[0];
-
-                const response = await fetch(`http://localhost:3001/reservation/${formattedDate}`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Map the data to match DataGrid requirements
-                const mappedData = data.map(reservation => ({
-                     id: reservation.id,
-                     Start: new Date(reservation.Start),
-                     name: `${reservation.name}`,
-                     phone: reservation.phone,
-                     Table: reservation.Table,
-                     PAX: reservation.PAX,
-                     ResStatus: reservation.status
-                }));
-                
-                setReservations(mappedData);
-            } catch (error) {
-                console.error('Error fetching reservations:', error);
-                // Map empty reservations in case of failed fetch.
-                setReservations([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchReservations();
-    }, [selectedDate]); 
 
     const columns = [
         { field: "Start", headerName: "Arrival", headerAlign: "left", cellClassName: "time-column--cell", renderCell: (params) => {
@@ -117,72 +113,42 @@ const Reservations = () => {
                 );
             },
         }
-    ]        
+    ]
 
     async function handleUpdateReservation(id, values) {
         try {
-            // Convert time string back to full datetime
-            const selectedDateTime = new Date(selectedDate); // From context
+            const selectedDateTime = new Date(selectedDate);
             const timeStr = values.Start.toLowerCase();
             const [time, period] = timeStr.split(' ');
             const [hours, minutes] = time.split(':');
-            
-            const hour = parseInt(hours);
-            const minute = parseInt(minutes);
-            
-            // Convert to 24 hour format
-            let hour24 = hour;
-            if (period === 'pm' && hour !== 12) {
-                hour24 = hour + 12;
-            } else if (period === 'am' && hour === 12) {
+    
+            let hour24 = parseInt(hours);
+            if (period === 'pm' && hour24 !== 12) {
+                hour24 += 12;
+            } else if (period === 'am' && hour24 === 12) {
                 hour24 = 0;
             }
-            
-            selectedDateTime.setHours(hour24, minute);
+    
+            selectedDateTime.setHours(hour24, parseInt(minutes));
+    
+            const [firstName, ...lastNameParts] = values.name.split(' ');
+            const lastName = lastNameParts.join(' ');
     
             const updatedValues = {
-                resDate: selectedDateTime.toISOString(),
-                numPeople: parseInt(values.PAX),
-                firstName: values.name.split(' ')[0],
-                lastName: values.name.split(' ').slice(1).join(' '),
-                phoneNum: values.phone,
-                table: values.Table,
-                resStatus: 'Pending'
+                startTime: selectedDateTime.toISOString(),
+                numberOfGuests: parseInt(values.PAX),
+                firstName,
+                lastName,
+                phoneNumber: values.phone,
+                email: selectedRes.email,
+                reservationStatus: values.ResStatus || 'Pending',
+                notes: values.Special || ''
             };
     
-            console.log('Sending update:', updatedValues);
-    
-            const response = await fetch(`http://localhost:3001/reservation/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updatedValues)
-            });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update reservation');
-            }
-    
-            setApiStatus('Reservation successfully updated.');
+            await ApiClient.put(`/reservations/${id}`, updatedValues);
             
-            // Update reservations list
-            const localDate = new Date(selectedDate);
-            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-            const formattedDate = localDate.toISOString().split('T')[0];
-    
-            const updatedResponse = await fetch(`http://localhost:3001/reservation/${formattedDate}`);
-            const updatedData = await updatedResponse.json();
-            const mappedData = updatedData.map(reservation => ({
-                id: reservation.id,
-                Start: new Date(reservation.Start),
-                name: `${reservation.name}`,
-                phone: reservation.phone,
-                Table: reservation.Table,
-                PAX: reservation.PAX
-            }));
-            setReservations(mappedData);
+            setApiStatus('Reservation successfully updated.');
+            await fetchReservations(); // Refresh the list
     
             setTimeout(() => {
                 closeModal();
@@ -197,45 +163,21 @@ const Reservations = () => {
 
     async function deleteReservation(id) {
         try {
-            const response = await fetch(`http://localhost:3001/reservation/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+            await ApiClient.delete(`/reservations/${id}`);
+            
+            setApiStatus('Reservation successfully deleted.');
+            await fetchReservations(); // Refresh the list
     
-            if (response.ok) {
-                setApiStatus('Reservation successfully deleted.');
-                
-                // Update reservations list immediately after deletion
-                const localDate = new Date(selectedDate);
-                localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-                const formattedDate = localDate.toISOString().split('T')[0];
-    
-                const updatedResponse = await fetch(`http://localhost:3001/reservation/${formattedDate}`);
-                const updatedData = await updatedResponse.json();
-                const mappedData = updatedData.map(reservation => ({
-                    id: reservation.id,
-                    Start: new Date(reservation.Start),
-                    name: `${reservation.name}`,
-                    phone: reservation.phone,
-                    Table: reservation.Table,
-                    PAX: reservation.PAX,
-                    Special: reservation.Special || "no"
-                }));
-                setReservations(mappedData);
-    
-                setTimeout(() => {
-                    closeModal(); 
-                    setApiStatus(null);
-                }, 2000);
-            } else {
-                setApiStatus('Failed to delete reservation.');
-            }
+            setTimeout(() => {
+                closeModal();
+                setApiStatus(null);
+            }, 2000);
         } catch (error) {
-            setApiStatus('Error deleting reservation.');
+            console.error('Delete error:', error);
+            setApiStatus(error.message || 'Error deleting reservation');
         }
     }
+    
 
     return (
         <Box>

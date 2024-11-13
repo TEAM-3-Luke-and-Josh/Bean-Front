@@ -48,3 +48,91 @@ body,
 .ps-sidebar-container {
   background-color: #626262 !important;
 }
+
+/* Override MUI Input styles */
+.MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Style for the input text when focused */
+.MuiInputBase-root.Mui-focused input {
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Style for labels when focused */
+.MuiFormLabel-root.Mui-focused {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Style for select components */
+.MuiSelect-select.MuiSelect-outlined.Mui-focused {
+  color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Dark mode variations */
+[data-theme='dark'] .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+[data-theme='dark'] .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme='dark'] .MuiInputBase-root.Mui-focused input {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme='dark'] .MuiFormLabel-root.Mui-focused {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+[data-theme='dark'] .MuiSelect-select.MuiSelect-outlined.Mui-focused {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* For filled variant inputs */
+.MuiFilledInput-root {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.MuiFilledInput-root:hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.MuiFilledInput-root.Mui-focused {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Dark mode for filled variant */
+[data-theme='dark'] .MuiFilledInput-root {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme='dark'] .MuiFilledInput-root:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme='dark'] .MuiFilledInput-root.Mui-focused {
+  background-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Ensure text remains visible during input */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+[data-theme='dark'] input:-webkit-autofill,
+[data-theme='dark'] input:-webkit-autofill:hover,
+[data-theme='dark'] input:-webkit-autofill:focus,
+[data-theme='dark'] input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #333 inset !important;
+  -webkit-text-fill-color: inherit !important;
+}

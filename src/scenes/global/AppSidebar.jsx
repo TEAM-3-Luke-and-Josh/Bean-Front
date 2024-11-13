@@ -3,6 +3,7 @@ import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import { Link } from "react-router-dom";
 import { tokens } from '../../theme';
+import AuthService from '../../services/authService';
 
 // ICONS
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -11,6 +12,7 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 /**Now takes a param for the current path and uses it for the styling and track current path */
 const AppSidebar = ({currentPath}) => {
@@ -18,6 +20,10 @@ const AppSidebar = ({currentPath}) => {
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(true);
     // [selected, setSelected] removed to solely use the useLocation() import in App.js to track current path
+
+    const handleLogout = () => {
+        AuthService.logout();
+    };
 
     return (
         <Box sx={{
@@ -107,6 +113,14 @@ const AppSidebar = ({currentPath}) => {
                             icon={<SettingsIcon />}
                         />
                     </Box>
+                    <Box mt="auto" mb={2}>
+                        <Item
+                            title="Logout"
+                            icon={<LogoutIcon />}
+                            onClick={handleLogout}
+                            isLogout={true}
+                        />
+                    </Box>
                 </Menu>
             </Sidebar>
         </Box>
@@ -116,21 +130,36 @@ const AppSidebar = ({currentPath}) => {
 export default AppSidebar;
 
 // MENU ITEM FORMAT
-const Item = ({ title, to, icon, active}) => {
+const Item = ({ title, to, icon, selected, setSelected, onClick, isLogout }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    return (
+    
+    const menuItem = (
+        <MenuItem
+            active={selected === title}
+            style={{
+                color: "white",
+                backgroundColor: isLogout ? colors.pink[500] : 
+                    selected === title ? colors.green[500] : 'transparent',
+            }}
+            onClick={() => {
+                if (onClick) {
+                    onClick();
+                }
+                if (setSelected) {
+                    setSelected(title);
+                }
+            }}
+            icon={icon}
+        >
+            <Typography>{title}</Typography>
+        </MenuItem>
+    );
+
+    // If there's a 'to' prop, wrap in Link, otherwise return just the MenuItem
+    return to ? (
         <Link to={to} style={{ textDecoration: 'none' }}>
-            <MenuItem 
-                active={active} 
-                style={{
-                    color: "white",
-                    backgroundColor: active ? colors.green[500] : 'transparent',
-                }}
-                icon={icon}
-            >
-                <Typography>{title}</Typography>
-            </MenuItem>
+            {menuItem}
         </Link>
-    )
-}
+    ) : menuItem;
+};
