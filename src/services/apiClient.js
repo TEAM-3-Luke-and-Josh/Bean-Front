@@ -6,51 +6,34 @@ class ApiClient {
     static async request(endpoint, options = {}) {
         const baseURL = '/api';
         const url = `${baseURL}${endpoint}`;
-
-        // Default headers
-        const headers = {
-            'Content-Type': 'application/json',
-            ...options.headers,
-        };
-
-        // Add auth token if it exists
-        const token = AuthService.getToken();
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        // Merge options
-        const config = {
-            ...options,
-            headers,
-        };
-
+    
         try {
-            const response = await fetch(url, config);
-
-            // Handle 401 Unauthorized
-            if (response.status === 401) {
-                AuthService.logout(); // Token is invalid or expired
-                throw new Error('Session expired. Please login again.');
-            }
-
-            // Handle 403 Forbidden
-            if (response.status === 403) {
-                throw new Error('You do not have permission to perform this action.');
-            }
-
-            // Parse JSON response
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${AuthService.getToken()}`,
+                    ...options.headers,
+                },
+            });
+    
+            // Log the response for debugging
+            console.log('API Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                url: response.url
+            });
+    
             const data = await response.json();
-
-            // Handle unsuccessful responses
+    
             if (!response.ok) {
-                throw new Error(data.message || 'API request failed');
+                throw new Error(data.message || `API error: ${response.status}`);
             }
-
+    
             return data;
         } catch (error) {
-            console.error('API request failed:', error);
-            throw error;
+            console.error('API request error:', error);
+            throw new Error(error.message || 'Failed to complete request');
         }
     }
 

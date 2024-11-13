@@ -3,6 +3,7 @@ import React, { useState, useContext, useEffect, createContext } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import Clock from '../../components/clock';
 import AuthService from '../../services/authService';
+import ApiClient from '../../services/apiClient';
 
 // IMAGES
 import LogoWhite from "../../images/logo_white.png";
@@ -31,7 +32,7 @@ export const DateProvider = ({ children }) => {
         {children}
       </DateContext.Provider>
     );
-  };
+};
 
 const Topbar = () => {
     const theme = useTheme();
@@ -39,84 +40,69 @@ const Topbar = () => {
     const colorMode = useContext(ColorModeContext);
     const { selectedDate, setSelectedDate } = useContext(DateContext);
     const [loading, setLoading] = useState(true);
-    const [resCount, setResCount] = useState(false);
+    const [totalCovers, setTotalCovers] = useState(0);
     const userInfo = AuthService.getUserInfo();
 
-    //FOR LOGIN DATE TO STAY SAME - If I used the above const whenever the state was changed with the selector it would
-    //update the date in the login area at the top right and this was undesirable
+    // For login date to stay same
     const currentDate = new Date();
 
-    //NAVIGATE TO NEXT DAY
+    // Navigation handlers
     const nextDayNavi = () => {
-        const nextDay = new Date(selectedDate)
-        nextDay.setDate(selectedDate.getDate() + 1)
-        setSelectedDate(nextDay)
+        const nextDay = new Date(selectedDate);
+        nextDay.setDate(selectedDate.getDate() + 1);
+        setSelectedDate(nextDay);
     };
-    //NAVIGATE TO PREVIOUS DAY
+
     const prevDayNavi = () => {
-        const prevDay = new Date(selectedDate)
-        prevDay.setDate(selectedDate.getDate() - 1)
-        setSelectedDate(prevDay)
+        const prevDay = new Date(selectedDate);
+        prevDay.setDate(selectedDate.getDate() - 1);
+        setSelectedDate(prevDay);
     };
 
     useEffect(() => {
-        const fetchReservationCount = async () => {
+        const fetchTotalCovers = async () => {
             try {
                 setLoading(true);
-
-                // Format date to YYYY-MM-DD for API and adjusted for localtimezone.
-                const localDate = new Date(selectedDate);
-                localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-                const formattedDate = localDate.toISOString().split('T')[0];
-
-                const response = await fetch(`http://localhost:3001/reservation/${formattedDate}`);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
                 
-                const data = await response.json();
+                // Format date to match API expectations (YYYY-MM-DD)
+                const formattedDate = selectedDate.toISOString().split('T')[0];
                 
-                // Map the data before counting.
-                const mappedData = data.map(reservation => ({
-                    id: reservation.id,
-                    Start: new Date(reservation.Start),
-                    name: `${reservation.name}`,
-                    phone: reservation.phone,
-                    Table: reservation.Table,
-                    PAX: reservation.PAX,
-                    Special: reservation.Special || "no"
-               }));
-               
-               // Calculate total PAX count, not just reservations.
-               let tempResCount = 0;
-               mappedData.forEach(reservation => {
-                tempResCount += reservation.PAX;
-               });
+                // Fetch reservations for the selected date
+                const reservations = await ApiClient.get(`/reservations/date/${formattedDate}`);
 
-               setResCount(tempResCount);
-               
+                console.log(reservations)
+                
+                // Calculate total covers by summing numberOfGuests
+                const total = reservations.reduce((sum, res) => {
+                    // Only count confirmed and seated reservations
+                    if (res.status === 'Confirmed' || res.status === 'Seated') {
+                        console.log(sum + res.numberOfGuests);
+                        return sum + res.numberOfGuests;
+                    }
+                    return sum;
+                }, 0);
+
+                setTotalCovers(total);
             } catch (error) {
-                console.error('Error fetching reservations:', error);
-                // Res count is 0 in case of a failed fetch.
-                setResCount(0);
+                console.error('Error fetching total covers:', error);
+                setTotalCovers(0);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchReservationCount();
+        fetchTotalCovers();
     }, [selectedDate]);
 
     return (
         <Box 
-        display="flex" 
-        p={1} 
-        backgroundColor={colors.pink[500]}
+            display="flex" 
+            p={1} 
+            backgroundColor={colors.pink[500]}
         >
             {/* LOGO */}
             <Box>
-                <img src={LogoWhite} alt="Bean Scene Logo" height="50px"></img>
+                <img src={LogoWhite} alt="Bean Scene Logo" height="50px" />
             </Box>
 
             {/* RIGHT ELEMENTS */}
@@ -127,16 +113,14 @@ const Topbar = () => {
                 alignItems="center"
                 marginLeft="50px"
             >
-
                 {/* TOTAL COVERS */}
                 <Box>
                     <IconButton sx={{ p: 1, color: "white" }}>
                         <TableRestaurantIcon />
                     </IconButton>
-                    <span className="white-override"><b>{loading ? (<span>Loading...</span>
-                    ) : (
-                        <span>{resCount}</span>
-                    )}</b> Covers</span>
+                    <span className="white-override">
+                        <b>{loading ? "Loading..." : totalCovers}</b> Covers
+                    </span>
                 </Box>
 
                 {/* DATE SELECTION */}
@@ -153,17 +137,23 @@ const Topbar = () => {
                 {/* TIME AND LOGIN DISPLAY */}
                 <Box display="flex">
                     <Box padding="0" mt="5px" mr="10px" textAlign="right">
-                        <p className="tight white-override"><Clock /> | {formatDate(currentDate)}</p>
-                        <p className="tight small white-override"><b>Username:</b> {userInfo.username}</p>
+                        <p className="tight white-override">
+                            <Clock /> | {formatDate(currentDate)}
+                        </p>
+                        <p className="tight small white-override">
+                            <b>Username:</b> {userInfo.username}
+                        </p>
                     </Box>
-                    <IconButton sx={{ p: 1, color: "white" }} onClick={colorMode.toggleColorMode}>
+                    <IconButton 
+                        sx={{ p: 1, color: "white" }} 
+                        onClick={colorMode.toggleColorMode}
+                    >
                         <ColorLensIcon style={{ fontSize: '36px', p: '0px', m: '0px' }} />
                     </IconButton>
                 </Box>
             </Box>
-
         </Box>
-    )
-}
+    );
+};
 
 export default Topbar;
