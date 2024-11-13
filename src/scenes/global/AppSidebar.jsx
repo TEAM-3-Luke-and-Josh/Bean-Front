@@ -3,6 +3,7 @@ import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import { Link } from "react-router-dom";
 import { tokens } from '../../theme';
+import AuthService from '../../services/authService';
 
 // ICONS
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -11,12 +12,17 @@ import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const AppSidebar = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [selected,  setSelected] = useState("Dashboard");
+
+    const handleLogout = () => {
+        AuthService.logout();
+    };
 
     return (
         <Box sx={{
@@ -113,6 +119,14 @@ const AppSidebar = () => {
                             setSelected={setSelected}
                         />
                     </Box>
+                    <Box mt="auto" mb={2}>
+                        <Item
+                            title="Logout"
+                            icon={<LogoutIcon />}
+                            onClick={handleLogout}
+                            isLogout={true}
+                        />
+                    </Box>
                 </Menu>
             </Sidebar>
         </Box>
@@ -122,22 +136,36 @@ const AppSidebar = () => {
 export default AppSidebar;
 
 // MENU ITEM FORMAT
-const Item = ({ title, to, icon, selected, setSelected }) => {
+const Item = ({ title, to, icon, selected, setSelected, onClick, isLogout }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    return (
+    
+    const menuItem = (
+        <MenuItem
+            active={selected === title}
+            style={{
+                color: "white",
+                backgroundColor: isLogout ? colors.pink[500] : 
+                    selected === title ? colors.green[500] : 'transparent',
+            }}
+            onClick={() => {
+                if (onClick) {
+                    onClick();
+                }
+                if (setSelected) {
+                    setSelected(title);
+                }
+            }}
+            icon={icon}
+        >
+            <Typography>{title}</Typography>
+        </MenuItem>
+    );
+
+    // If there's a 'to' prop, wrap in Link, otherwise return just the MenuItem
+    return to ? (
         <Link to={to} style={{ textDecoration: 'none' }}>
-            <MenuItem 
-                active={selected === title} 
-                style={{
-                    color: "white",
-                    backgroundColor: selected === title ? colors.green[500] : 'transparent',
-                }}
-                onClick={() => setSelected(title)}
-                icon={icon}
-            >
-                <Typography>{title}</Typography>
-            </MenuItem>
+            {menuItem}
         </Link>
-    )
-}
+    ) : menuItem;
+};

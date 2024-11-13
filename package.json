@@ -1,7 +1,7 @@
 {
   "name": "restaurant-app",
   "version": "0.1.0",
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5292",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.3",
@@ -19,9 +19,6 @@
     "@nivo/geo": "^0.87.0",
     "@nivo/line": "^0.87.0",
     "@nivo/pie": "^0.87.0",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
     "date-fns": "^2.30.0",
     "formik": "^2.4.6",
     "react": "^18.3.1",
@@ -56,5 +53,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "jest": "^27.5.1"
   }
 }

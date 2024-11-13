@@ -2,6 +2,7 @@ import { Box, IconButton, useTheme } from "@mui/material";
 import React, { useState, useContext, useEffect, createContext } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import Clock from '../../components/clock';
+import AuthService from '../../services/authService';
 
 // IMAGES
 import LogoWhite from "../../images/logo_white.png";
@@ -39,6 +40,7 @@ const Topbar = () => {
     const { selectedDate, setSelectedDate } = useContext(DateContext);
     const [loading, setLoading] = useState(true);
     const [resCount, setResCount] = useState(false);
+    const userInfo = AuthService.getUserInfo();
 
     //FOR LOGIN DATE TO STAY SAME - If I used the above const whenever the state was changed with the selector it would
     //update the date in the login area at the top right and this was undesirable
@@ -152,7 +154,7 @@ const Topbar = () => {
                 <Box display="flex">
                     <Box padding="0" mt="5px" mr="10px" textAlign="right">
                         <p className="tight white-override"><Clock /> | {formatDate(currentDate)}</p>
-                        <p className="tight small white-override">josh@beanscene.com.au</p>
+                        <p className="tight small white-override"><b>Username:</b> {userInfo.username}</p>
                     </Box>
                     <IconButton sx={{ p: 1, color: "white" }} onClick={colorMode.toggleColorMode}>
                         <ColorLensIcon style={{ fontSize: '36px', p: '0px', m: '0px' }} />

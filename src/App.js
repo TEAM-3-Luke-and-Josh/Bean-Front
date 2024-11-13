@@ -1,8 +1,10 @@
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { Routes , Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Box } from "@mui/material";
 import { DateProvider } from "./scenes/global/TopBar.jsx";
+import { useState, useEffect } from 'react';
+import AuthService from './services/authService';
 
 // COMPONENETS
 import Topbar from './scenes/global/TopBar.jsx'
@@ -14,34 +16,82 @@ import Reservations from './scenes/reservations'
 import Form from './scenes/form'
 import Help from './scenes/help'
 import Settings from './scenes/settings'
+import Login from './scenes/login'
 
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = AuthService.isAuthenticated();
+  
+  if (!isAuthenticated) {
+      return <Navigate to="/login" />;
+  }
+  
+  return children;
+};
 
 function App() {
   const [theme, colorMode] = useMode();
+  const [isAuthenticated, setIsAuthenticated] = useState(AuthService.isAuthenticated());
+
+  useEffect(() => {
+      // Check authentication status on mount and token changes
+      const checkAuth = () => {
+          setIsAuthenticated(AuthService.isAuthenticated());
+      };
+
+      window.addEventListener('storage', checkAuth);
+      return () => window.removeEventListener('storage', checkAuth);
+  }, []);
 
   return (
-    <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <DateProvider>
-        <CssBaseline />
-        <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-          <Topbar />
-          <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            <AppSidebar />
-            <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/reservations" element={<Reservations />} />
-                <Route path="/form" element={<Form />} />
-                <Route path="/help" element={<Help />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </Box>
-          </Box>
-        </Box>
-        </DateProvider>
-      </ThemeProvider>
-    </ColorModeContext.Provider>
+      <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+              <DateProvider>
+                  <CssBaseline />
+                  {isAuthenticated ? (
+                      <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+                          <Topbar />
+                          <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                              <AppSidebar />
+                              <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+                                  <Routes>
+                                      <Route path="/" element={
+                                          <ProtectedRoute>
+                                              <Dashboard />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/reservations" element={
+                                          <ProtectedRoute>
+                                              <Reservations />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/form" element={
+                                          <ProtectedRoute>
+                                              <Form />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/help" element={
+                                          <ProtectedRoute>
+                                              <Help />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/settings" element={
+                                          <ProtectedRoute>
+                                              <Settings />
+                                          </ProtectedRoute>
+                                      } />
+                                  </Routes>
+                              </Box>
+                          </Box>
+                      </Box>
+                  ) : (
+                      <Routes>
+                          <Route path="/login" element={<Login />} />
+                          <Route path="*" element={<Navigate to="/login" />} />
+                      </Routes>
+                  )}
+              </DateProvider>
+          </ThemeProvider>
+      </ColorModeContext.Provider>
   );
 }
 
