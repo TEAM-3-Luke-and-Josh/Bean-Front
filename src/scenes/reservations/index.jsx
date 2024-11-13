@@ -1,11 +1,11 @@
-import { Box, useTheme, Modal, Typography, Button, Stack, TextField} from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { DataGrid } from "@mui/x-data-grid"
 import Header from "../../components/header.jsx"
 import { tokens } from "../../theme.js"
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { DateContext } from '../global/TopBar.jsx';
-import { Formik, Form } from 'formik'
 import ApiClient from '../../services/apiClient';
+import ReservationModal from '../../components/ReservationModal';
 
 const Reservations = () => {
     const theme = useTheme();
@@ -13,89 +13,98 @@ const Reservations = () => {
     const { selectedDate } = useContext(DateContext);
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
-
     const [openModal, setOpenModal] = useState(false);
     const [selectedRes, setSelectedRes] = useState(null)
     const [apiStatus, setApiStatus] = useState(null);
 
-    const fetchReservations = useCallback(async () => {
-        try {
-            setLoading(true);
-            const localDate = new Date(selectedDate);
-            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-            const formattedDate = localDate.toISOString().split('T')[0];
-    
-            const data = await ApiClient.get(`/reservations/date/${formattedDate}`);
-            
-            const mappedData = data.map(reservation => ({
-                id: reservation.id,
-                Start: new Date(reservation.start),
-                name: reservation.name,
-                phone: reservation.phone,
-                PAX: reservation.numberOfGuests,
-                ResStatus: reservation.status,
-                sittingId: reservation.sitting.sittingID,
-                sittingType: reservation.sitting.sittingType
-            }));
-    
-            setReservations(mappedData);
-        } catch (error) {
-            console.error('Error fetching reservations:', error);
-            setReservations([]);
-            if (error.message === 'Session expired. Please login again.') {
-                return;
-            }
-        } finally {
-            setLoading(false);
-        }
-    }, [selectedDate]);
-
-    useEffect(() => {
-        fetchReservations();
-    }, [fetchReservations])
-
-    const rowClickStateUpdate = (params) => {
-        setSelectedRes(params.row); 
-        setOpenModal(true);
-    }
-
-    const closeModal = () => {
-        setSelectedRes(null);
-        setOpenModal(false);
-    }
-
     const columns = [
-        { field: "Start", headerName: "Arrival", headerAlign: "left", cellClassName: "time-column--cell", renderCell: (params) => {
-                const date = new Date(params.value);
-                return date.toLocaleTimeString('en-AU', {
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    hour12: true
-                });
-            }},
-        { field: "name", headerName: "Name", headerAlign: "left", flex: 2},
-        { field: "phone", headerName: "Phone Number", headerAlign: "left", flex: 2},
-        { field: "Table", headerName: "T#", headerAlign: "center", type: "number", align: "center", flex: 1},
-        { field: "PAX", headerName: "PX", headerAlign: "center", type: "number", align: "center", flex: 1},
-        { field: "ResStatus", headerName: "Status", headerAlign: "center", flex: 1, renderCell: (params) => {
-                const status = params.value;
-        
+        { 
+            field: "start", 
+            headerName: "Time", 
+            headerAlign: "left",
+            width: 100,
+            cellClassName: "time-column--cell",
+            renderCell: (params) => {
+                if (!params?.value) return '';
+                try {
+                    const date = new Date(params.value);
+                    return date.toLocaleTimeString('en-AU', {
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true
+                    });
+                } catch (error) {
+                    console.error('Error formatting date:', error);
+                    return '';
+                }
+            }
+        },
+        { 
+            field: "sitting", 
+            headerName: "Sitting", 
+            headerAlign: "left",
+            width: 120,
+        },
+        { 
+            field: "name", 
+            headerName: "Guest Name", 
+            headerAlign: "left", 
+            flex: 2,
+        },
+        { 
+            field: "phone", 
+            headerName: "Phone", 
+            headerAlign: "left", 
+            flex: 1,
+        },
+        {
+            field: "tables",
+            headerName: "Tables",
+            headerAlign: "center",
+            align: "center",
+            width: 130,
+            renderCell: (params) => {
+                const tables = params.value;
+                if (!tables || tables.length === 0) return '—';
+                return tables.join(', ');
+            }
+        },
+        { 
+            field: "numberOfGuests", 
+            headerName: "PX", 
+            headerAlign: "center", 
+            align: "center",
+            width: 80,
+        },
+        { 
+            field: "status", 
+            headerName: "Status", 
+            headerAlign: "center", 
+            flex: 1,
+            renderCell: (params) => {
+                const status = params?.value;
+                if (!status) return '';
+                
                 let backgroundColor;
-                switch (status) {
-                    case 'Completed':
-                        backgroundColor = `${colors.green[500]}`;
+                switch (status.toLowerCase()) {
+                    case 'completed':
+                        backgroundColor = colors.green[500];
                         break;
-                    case 'Canceled':
-                        backgroundColor = `${colors.pink[500]}`;
+                    case 'cancelled':
+                        backgroundColor = colors.pink[500];
                         break;
-                    case 'Pending':
-                        backgroundColor = `#333`;
+                    case 'seated':
+                        backgroundColor = colors.yellow[500];
                         break;
+                    case 'confirmed':
+                        backgroundColor = colors.brown[500];
+                        break;
+                    case 'pending':
                     default:
-                        backgroundColor = 'transparent';
+                        backgroundColor = colors.sand[500];
                         break;
                 }
-        
+                
                 return (
                     <Box style={{ 
                         backgroundColor, 
@@ -111,41 +120,87 @@ const Reservations = () => {
                         {status}
                     </Box>
                 );
-            },
+            }
         }
-    ]
+    ];    
+
+    const fetchReservations = useCallback(async () => {
+        try {
+            setLoading(true);
+            const localDate = new Date(selectedDate);
+            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+            const formattedDate = localDate.toISOString().split('T')[0];
+    
+            const response = await ApiClient.get(`/reservations/date/${formattedDate}`);
+    
+            const transformedData = response.map(reservation => ({
+                id: reservation.id,
+                start: reservation.start,
+                name: reservation.name,
+                phone: reservation.phone,
+                sitting: reservation.sitting,
+                tables: reservation.tables, // Add tables array
+                numberOfGuests: reservation.numberOfGuests,
+                status: reservation.status
+            }));
+    
+            setReservations(transformedData);
+        } catch (error) {
+            console.error('Error fetching reservations:', error);
+            setReservations([]);
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedDate]);
+
+    useEffect(() => {
+        fetchReservations();
+    }, [fetchReservations]);
+
+    const handleRowClick = (params) => {
+        setSelectedRes(params.row);
+        setOpenModal(true);
+    };
+
+    const closeModal = () => {
+        setSelectedRes(null);
+        setOpenModal(false);
+        setApiStatus(null);
+    };
 
     async function handleUpdateReservation(id, values) {
         try {
+            // Parse the time from the input
             const selectedDateTime = new Date(selectedDate);
-            const timeStr = values.Start.toLowerCase();
+            const timeStr = values.start.toLowerCase();
             const [time, period] = timeStr.split(' ');
             const [hours, minutes] = time.split(':');
-    
+        
             let hour24 = parseInt(hours);
             if (period === 'pm' && hour24 !== 12) {
                 hour24 += 12;
             } else if (period === 'am' && hour24 === 12) {
                 hour24 = 0;
             }
-    
+        
             selectedDateTime.setHours(hour24, parseInt(minutes));
     
+            // Split the name into first and last name
             const [firstName, ...lastNameParts] = values.name.split(' ');
             const lastName = lastNameParts.join(' ');
-    
+        
             const updatedValues = {
                 startTime: selectedDateTime.toISOString(),
-                numberOfGuests: parseInt(values.PAX),
-                firstName,
-                lastName,
+                numberOfGuests: parseInt(values.numberOfGuests),
+                reservationStatus: values.status,
+                firstName: firstName,
+                lastName: lastName,
                 phoneNumber: values.phone,
-                email: selectedRes.email,
-                reservationStatus: values.ResStatus || 'Pending',
-                notes: values.Special || ''
+                email: selectedRes.email || '', // Include email if available
+                notes: values.notes || ''
             };
-    
-            await ApiClient.put(`/reservations/${id}`, updatedValues);
+        
+            await ApiClient.put(`/Reservations/${id}`, updatedValues);
             
             setApiStatus('Reservation successfully updated.');
             await fetchReservations(); // Refresh the list
@@ -181,8 +236,9 @@ const Reservations = () => {
 
     return (
         <Box>
-            <Header title="Reservations" subtitle="View upcoming reservations" />
-            <Box height="66vh" sx={{
+            <Header title="Reservations" subtitle="Manage your restaurant reservations" />
+            
+            <Box height="75vh" sx={{
                 "& .MuiDataGrid-root": {
                     border: "none",
                 },
@@ -190,14 +246,16 @@ const Reservations = () => {
                     borderBottom: "none"
                 },
                 "& .time-column--cell": {
-                    color: colors.sand[700],
-                    fontWeight: 700
+                    color: colors.sand[700], // Yellow theme color
+                    fontWeight: 700 // Bold
                 },
                 "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: colors.sand[100],
                     borderBottom: "none"
                 },
                 "& .MuiDataGrid-footerContainer": {
                     borderTop: "none",
+                    backgroundColor: colors.sand[100],
                 }
             }}>
                 <DataGrid 
@@ -206,141 +264,28 @@ const Reservations = () => {
                     loading={loading}
                     initialState={{
                         sorting: {
-                            sortModel: [{ field: 'Start', sort: 'asc' }]
-                        }
+                            sortModel: [{ field: 'start', sort: 'asc' }]
+                        },
+                        pagination: {
+                            pageSize: 15,
+                        },
                     }}
-                    onRowClick={rowClickStateUpdate}
+                    pageSizeOptions={[15, 25, 50]}
+                    onRowClick={handleRowClick}
+                    disableSelectionOnClick
                 />
             </Box>
             
-            {/*MODAL CREATION */}
-            <Modal open={openModal} onClose={closeModal}>
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 400,
-                        bgcolor: 'background.paper',
-                        borderRadius: 3,
-                        boxShadow: 24,
-                        p: 4,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 2,
-                    }}
-                >
-                    {selectedRes && (
-                        <>
-                            <Typography variant='h5' fontWeight="bold">
-                                Edit Reservation
-                            </Typography>
-
-                            <Formik
-                                initialValues={{
-                                    Start: selectedRes.Start.toLocaleTimeString('en-AU', {
-                                        hour: 'numeric',
-                                        minute: 'numeric',
-                                        hour12: true,
-                                    }),
-                                    name: selectedRes.name || '',
-                                    phone: selectedRes.phone || '',
-                                    Table: selectedRes.Table || '',
-                                    PAX: selectedRes.PAX || '',
-                                    Special: selectedRes.Special || '',
-                                }}
-                                onSubmit={(values) => {
-                                    // Submit the updated values
-                                    handleUpdateReservation(selectedRes.id, values);
-                                }}
-                            >
-                                {({ values, handleChange }) => (
-                                    <Form>
-                                        <Stack spacing={2}>
-                                            <TextField
-                                                label="Start Time"
-                                                name="Start"
-                                                value={values.Start}
-                                                onChange={handleChange}
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                label="Name"
-                                                name="name"
-                                                value={values.name}
-                                                onChange={handleChange}
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                label="Phone"
-                                                name="phone"
-                                                value={values.phone}
-                                                onChange={handleChange}
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                label="Table"
-                                                name="Table"
-                                                value={values.Table}
-                                                onChange={handleChange}
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                label="PAX"
-                                                name="PAX"
-                                                type="number"
-                                                value={values.PAX}
-                                                onChange={handleChange}
-                                                fullWidth
-                                            />
-                                            <TextField
-                                                label="Special Requests"
-                                                name="Special"
-                                                value={values.Special}
-                                                onChange={handleChange}
-                                                fullWidth
-                                            />
-
-                                            {/* Display API feedback */}
-                                            {apiStatus && (
-                                                <Typography>{apiStatus}</Typography>
-                                            )}
-
-                                            <Stack direction="row" spacing={2} justifyContent="space-between" mt={3}>
-                                                <Button
-                                                    type="submit"
-                                                    variant="contained"
-                                                    sx={{ bgcolor: `${colors.green[500]}`, color: '#FFF' }}
-                                                    size="large"
-                                                >
-                                                    Save
-                                                </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    onClick={() => deleteReservation(selectedRes.id)}
-                                                    sx={{ bgcolor: `${colors.pink[500]}`, color: '#FFF' }}
-                                                    size="large"
-                                                >
-                                                    Delete
-                                                </Button>
-                                                <Button
-                                                    variant="outlined"
-                                                    sx={{ bgcolor: `${colors.swap[100]}`, color: `${colors.swap[200]}` }}
-                                                    onClick={closeModal}
-                                                    size="medium"
-                                                >
-                                                    Close
-                                                </Button>
-                                            </Stack>
-                                        </Stack>
-                                    </Form>
-                                )}
-                            </Formik>
-                        </>
-                    )}
-                </Box>
-            </Modal>
+            {/*MODAL COMPONENT */}
+            <ReservationModal
+                open={openModal}
+                onClose={closeModal}
+                selectedRes={selectedRes}
+                onUpdate={handleUpdateReservation}
+                onDelete={deleteReservation}
+                apiStatus={apiStatus}
+                colors={colors}
+            />
         </Box>
     )
 }
