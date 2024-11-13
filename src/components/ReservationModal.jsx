@@ -38,13 +38,14 @@ const ReservationModal = ({ open, onClose, selectedRes, onUpdate, onDelete, apiS
                 hour: 'numeric',
                 minute: 'numeric',
                 hour12: true,
+                timeZone: 'Australia/Sydney'
               }),
               name: selectedRes.name,
               phone: selectedRes.phone,
+              email: selectedRes.email || '',
               tables: selectedRes.tables ? selectedRes.tables.join(', ') : '',
               numberOfGuests: selectedRes.numberOfGuests,
               status: selectedRes.status,
-              sitting: selectedRes.sitting,
               notes: selectedRes.notes || ''
             }}
             onSubmit={(values) => onUpdate(selectedRes.id, values)}
@@ -62,21 +63,13 @@ const ReservationModal = ({ open, onClose, selectedRes, onUpdate, onDelete, apiS
                         fullWidth
                       />
                       <TextField
-                        label="Sitting"
-                        name="sitting"
-                        value={values.sitting}
+                        label="Guest Name"
+                        name="name"
+                        value={values.name}
                         onChange={handleChange}
                         fullWidth
                       />
                     </Stack>
-
-                    <TextField
-                      label="Guest Name"
-                      name="name"
-                      value={values.name}
-                      onChange={handleChange}
-                      fullWidth
-                    />
 
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                       <TextField
@@ -128,8 +121,6 @@ const ReservationModal = ({ open, onClose, selectedRes, onUpdate, onDelete, apiS
                       name="notes"
                       value={values.notes}
                       onChange={handleChange}
-                      multiline
-                      rows={3}
                       fullWidth
                     />
 

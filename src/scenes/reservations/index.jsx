@@ -31,19 +31,14 @@ const Reservations = () => {
                     return date.toLocaleTimeString('en-AU', {
                         hour: 'numeric',
                         minute: 'numeric',
-                        hour12: true
+                        hour12: true,
+                        timeZone: 'Australia/Sydney',
                     });
                 } catch (error) {
                     console.error('Error formatting date:', error);
                     return '';
                 }
             }
-        },
-        { 
-            field: "sitting", 
-            headerName: "Sitting", 
-            headerAlign: "left",
-            width: 120,
         },
         { 
             field: "name", 
@@ -62,7 +57,7 @@ const Reservations = () => {
             headerName: "Tables",
             headerAlign: "center",
             align: "center",
-            width: 130,
+            flex: 1,
             renderCell: (params) => {
                 const tables = params.value;
                 if (!tables || tables.length === 0) return '—';
@@ -74,7 +69,7 @@ const Reservations = () => {
             headerName: "PX", 
             headerAlign: "center", 
             align: "center",
-            width: 80,
+            flex: 1,
         },
         { 
             field: "status", 
@@ -138,8 +133,7 @@ const Reservations = () => {
                 start: reservation.start,
                 name: reservation.name,
                 phone: reservation.phone,
-                sitting: reservation.sitting,
-                tables: reservation.tables, // Add tables array
+                tables: reservation.tables,
                 numberOfGuests: reservation.numberOfGuests,
                 status: reservation.status
             }));
@@ -170,37 +164,46 @@ const Reservations = () => {
 
     async function handleUpdateReservation(id, values) {
         try {
-            // Parse the time from the input
-            const selectedDateTime = new Date(selectedDate);
-            const timeStr = values.start.toLowerCase();
-            const [time, period] = timeStr.split(' ');
-            const [hours, minutes] = time.split(':');
-        
-            let hour24 = parseInt(hours);
-            if (period === 'pm' && hour24 !== 12) {
-                hour24 += 12;
-            } else if (period === 'am' && hour24 === 12) {
-                hour24 = 0;
-            }
-        
-            selectedDateTime.setHours(hour24, parseInt(minutes));
+        // Get the original date in Sydney timezone
+        const originalDate = new Date(selectedRes.start);
+        const timeStr = values.start.toLowerCase();
+        const [time, period] = timeStr.split(' ');
+        const [hours, minutes] = time.split(':');
     
-            // Split the name into first and last name
-            const [firstName, ...lastNameParts] = values.name.split(' ');
-            const lastName = lastNameParts.join(' ');
-        
-            const updatedValues = {
-                startTime: selectedDateTime.toISOString(),
-                numberOfGuests: parseInt(values.numberOfGuests),
-                reservationStatus: values.status,
-                firstName: firstName,
-                lastName: lastName,
-                phoneNumber: values.phone,
-                email: selectedRes.email || '', // Include email if available
-                notes: values.notes || ''
-            };
-        
-            await ApiClient.put(`/Reservations/${id}`, updatedValues);
+        let hour24 = parseInt(hours);
+        if (period === 'pm' && hour24 !== 12) {
+            hour24 += 12;
+        } else if (period === 'am' && hour24 === 12) {
+            hour24 = 0;
+        }
+    
+        // Create the date in Sydney timezone
+        const sydneyDate = new Date(originalDate);
+        sydneyDate.setHours(hour24, parseInt(minutes), 0, 0);
+
+        // Convert to UTC for API
+        const utcDate = new Date(Date.UTC(
+            sydneyDate.getFullYear(),
+            sydneyDate.getMonth(),
+            sydneyDate.getDate(),
+            hour24,
+            parseInt(minutes),
+            0
+        ));
+    
+        const updatedValues = {
+            startTime: utcDate.toISOString(),
+            numberOfGuests: parseInt(values.numberOfGuests),
+            reservationStatus: values.status,
+            firstName: values.name.split(' ')[0],  // Split the full name
+            lastName: values.name.split(' ').slice(1).join(' '),  // Get rest of name
+            phoneNumber: values.phone,
+            email: selectedRes.email || '',  // Add email from selectedRes if available
+            tables: values.tables.split(',').map(t => t.trim()).filter(t => t),
+            notes: values.notes || ''
+        };
+
+        await ApiClient.put(`/reservations/${id}`, updatedValues);
             
             setApiStatus('Reservation successfully updated.');
             await fetchReservations(); // Refresh the list
@@ -232,13 +235,12 @@ const Reservations = () => {
             setApiStatus(error.message || 'Error deleting reservation');
         }
     }
-    
 
     return (
         <Box>
             <Header title="Reservations" subtitle="Manage your restaurant reservations" />
             
-            <Box height="75vh" sx={{
+            <Box height="68vh" sx={{
                 "& .MuiDataGrid-root": {
                     border: "none",
                 },
