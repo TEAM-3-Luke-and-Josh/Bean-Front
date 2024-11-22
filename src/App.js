@@ -1,6 +1,6 @@
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 import { DateProvider } from "./scenes/global/TopBar.jsx";
 import { useState, useEffect } from 'react';
@@ -57,7 +57,7 @@ function App() {
                       <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
                           <Topbar />
                           <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                              <AppSidebar />
+                              <AppSidebar currentPath={currentPath} />
                               <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
                                   <Routes>
                                       <Route path="/" element={
