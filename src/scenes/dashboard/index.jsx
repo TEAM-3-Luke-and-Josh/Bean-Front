@@ -1,4 +1,5 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Typography, useTheme, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { tokens } from "../../theme";
 import Header from "../../components/header.jsx"
 import BarChart from "../../components/BarChart";
@@ -87,6 +88,20 @@ const Dashboard = () => {
                     />
                 </Box>
                 <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
+                    <Button
+                        component={Link} 
+                        to="/reservations"
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: 0, // Needed so that the button is blocky for the theme change (otherwise there are small corner pixels that are off colour)
+                            color: 'inherit',
+                            backgroundColor: colors.brown[100],
+                            '&:hover': {
+                                backgroundColor: colors.yellow[200], // Add a hover color for feedback
+                            },
+                        }}
+                    >
                     <StatBox
                         title={loading ? "..." : stats.reservations.total.toString()}
                         subtitle="Todays Reservations"
@@ -94,6 +109,7 @@ const Dashboard = () => {
                         increase={`${stats.reservations.growth}%`}
                         icon={<LibraryBooksIcon sx={{ fontSize: "26px" }}/>}
                     />
+                    </Button>
                 </Box>
                 
                 {/* ROW 2 */}
