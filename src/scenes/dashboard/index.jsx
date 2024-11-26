@@ -3,6 +3,8 @@ import { tokens } from "../../theme";
 import Header from "../../components/header.jsx"
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
+import { useState, useEffect } from 'react';
+import ApiClient from '../../services/apiClient';
 
 // ICONS
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
@@ -12,6 +14,45 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 const Dashboard = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const [stats, setStats] = useState({
+        customers: { total: 0, growth: 0 },
+        reservations: { total: 0, growth: 0 }
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardStats = async () => {
+            try {
+                // Fetch guests data
+                const guestsResponse = await ApiClient.get('/guests');
+                const totalCustomers = guestsResponse.length;
+                
+                // Fetch today's reservations
+                const today = new Date().toISOString().split('T')[0];
+                const reservationsResponse = await ApiClient.get(`/reservations/date/${today}`);
+                const totalReservations = reservationsResponse.length;
+                
+                // Would typically compare with previous period.
+                // This is mocked for now but could be calculated from historical data
+                setStats({
+                    customers: {
+                        total: totalCustomers,
+                        growth: 14 // Mock growth rate
+                    },
+                    reservations: {
+                        total: totalReservations,
+                        growth: -12 // Mock growth rate
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardStats();
+    }, []);
     
     return (
         <Box>
@@ -29,36 +70,30 @@ const Dashboard = () => {
                 {/* ROW 1 */}
                 <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
                     <StatBox
-                        title="85"
-                        subtitle="Customers"
+                        title={loading ? "..." : stats.customers.total.toString()}
+                        subtitle="Total Customers"
                         progress="0.75"
-                        increase="+14%"
+                        increase={`${stats.customers.growth}%`}
                         icon={<EmojiPeopleIcon sx={{ fontSize: "26px" }}/>}
-                        >
-
-                    </StatBox>
+                    />
                 </Box>
                 <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
                     <StatBox
                         title="125"
-                        subtitle="Orders"
+                        subtitle="Todays Orders"
                         progress="0.89"
                         increase="+28%"
                         icon={<RestaurantIcon sx={{ fontSize: "26px" }}/>}
-                        >
-
-                    </StatBox>
+                    />
                 </Box>
                 <Box gridColumn="span 4" backgroundColor={colors.brown[100]} display="flex" alignItems="center" justifyContent="center">
                     <StatBox
-                        title="12"
-                        subtitle="Reservations"
+                        title={loading ? "..." : stats.reservations.total.toString()}
+                        subtitle="Todays Reservations"
                         progress="0.44"
-                        increase="-12%"
+                        increase={`${stats.reservations.growth}%`}
                         icon={<LibraryBooksIcon sx={{ fontSize: "26px" }}/>}
-                        >
-
-                    </StatBox>
+                    />
                 </Box>
                 
                 {/* ROW 2 */}
@@ -84,7 +119,7 @@ const Dashboard = () => {
                         </Box>
 
                         <Box>
-                            <BarChart></BarChart>
+                            <BarChart />
                         </Box>
                     </Box>
                 </Box>

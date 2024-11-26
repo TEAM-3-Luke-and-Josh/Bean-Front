@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import { Link } from "react-router-dom";
@@ -6,13 +6,15 @@ import { tokens } from '../../theme';
 import AuthService from '../../services/authService';
 
 // ICONS
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import LibraryBooksIcon from '@mui/icons-material/TableRestaurant';
 import AddIcon from '@mui/icons-material/Add';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import SettingsIcon from '@mui/icons-material/Settings';
 import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import KitchenIcon from '@mui/icons-material/Kitchen';
 
 const AppSidebar = () => {
     const theme = useTheme();
@@ -85,6 +87,15 @@ const AppSidebar = () => {
                     </Box>
                     <Box>
                         <Item 
+                            title="Add Reservation"
+                            to="/form"
+                            icon={<AddIcon />}
+                            selected={selected}
+                            setSelected={setSelected}
+                        />
+                    </Box>
+                    <Box>
+                        <Item 
                             title="Reservations"
                             to="/reservations"
                             icon={<LibraryBooksIcon />}
@@ -94,9 +105,18 @@ const AppSidebar = () => {
                     </Box>
                     <Box>
                         <Item 
-                            title="Add Reservation"
-                            to="/form"
-                            icon={<AddIcon />}
+                            title="Place Order"
+                            to="/ordering"
+                            icon={<RestaurantMenuIcon />}
+                            selected={selected}
+                            setSelected={setSelected}
+                        />
+                    </Box>
+                    <Box>
+                        <Item 
+                            title="View Orders"
+                            to="/orders"
+                            icon={<KitchenIcon />}
                             selected={selected}
                             setSelected={setSelected}
                         />

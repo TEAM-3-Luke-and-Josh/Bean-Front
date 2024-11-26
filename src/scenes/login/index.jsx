@@ -1,4 +1,3 @@
-//src/scenes/login/index.jsx
 import { Box, Button, TextField, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { useState } from "react";
