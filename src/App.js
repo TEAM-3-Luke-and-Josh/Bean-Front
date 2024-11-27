@@ -55,7 +55,6 @@ function App() {
       <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
               <DateProvider>
-<<<<<<< HEAD
                   <CssBaseline />
                   {isAuthenticated ? (
                       <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -99,7 +98,6 @@ function App() {
                           <Route path="*" element={<Navigate to="/login" />} />
                       </Routes>
                   )}
-=======
                 <SidebarProvider>
                     <CssBaseline />
                     {isAuthenticated ? (
@@ -155,7 +153,6 @@ function App() {
                         </Routes>
                     )}
                 </SidebarProvider>
->>>>>>> 3ed3505639180800d097080b0b7f0767b73a6eef
               </DateProvider>
           </ThemeProvider>
       </ColorModeContext.Provider>
