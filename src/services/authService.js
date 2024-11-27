@@ -1,5 +1,3 @@
-// src/services/authService.js
-
 const TOKEN_KEY = 'jwt_token';
 
 class AuthService {
