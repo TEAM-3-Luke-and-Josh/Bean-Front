@@ -6,7 +6,7 @@ import { DateProvider } from "./scenes/global/TopBar.jsx";
 import { useState, useEffect } from 'react';
 import AuthService from './services/authService';
 
-// COMPONENETS
+// COMPONENTS
 import Topbar from './scenes/global/TopBar.jsx'
 import AppSidebar from './scenes/global/AppSidebar.jsx'
 

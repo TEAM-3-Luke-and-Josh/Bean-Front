@@ -150,12 +150,15 @@ const Reservations = () => {
     useEffect(() => {
         fetchReservations();
     }, [fetchReservations]);
-
+    /** A function that is called for the onClick of a Reservation row in the datagrid
+     * takes the params of the row (the fields of the object that is being displayed) to then
+     * display those in the modal it opens.
+     */
     const handleRowClick = (params) => {
         setSelectedRes(params.row);
         setOpenModal(true);
     };
-
+    /** Closes the Reservation Modal and resets the following data for the application */
     const closeModal = () => {
         setSelectedRes(null);
         setOpenModal(false);
