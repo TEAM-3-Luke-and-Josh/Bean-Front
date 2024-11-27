@@ -85,15 +85,13 @@ const AppSidebar = ({currentPath}) => {
                     </Box>
                     <Box>
                         <Item 
+                            active={currentPath === "/form"} 
                             title="Add Reservation"
                             to="/form"
                             icon={<AddIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>
-                        <Item 
                         <Item
                             active={currentPath === "/reservations"} 
                             title="Reservations"
@@ -102,21 +100,19 @@ const AppSidebar = ({currentPath}) => {
                         />
                     </Box>
                     <Box>
-                        <Item 
+                        <Item
+                            active={currentPath === "/ordering"}  
                             title="Place Order"
                             to="/ordering"
                             icon={<RestaurantMenuIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>
                         <Item 
+                            active={currentPath === "/orders"}
                             title="View Orders"
                             to="/orders"
                             icon={<KitchenIcon />}
-                            selected={selected}
-                            setSelected={setSelected}
                         />
                     </Box>
                     <Box>

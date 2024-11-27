@@ -1,13 +1,13 @@
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
 import { DateProvider } from "./scenes/global/TopBar.jsx";
 import { SidebarProvider } from './scenes/contexts/SidebarContext';
 import { useState, useEffect } from 'react';
 import AuthService from './services/authService';
 
-// COMPONENETS
+// COMPONENTS
 import Topbar from './scenes/global/TopBar.jsx'
 import AppSidebar from './scenes/global/AppSidebar.jsx'
 
@@ -55,6 +55,49 @@ function App() {
       <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
               <DateProvider>
+                  <CssBaseline />
+                  {isAuthenticated ? (
+                      <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+                          <Topbar />
+                          <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                              <AppSidebar currentPath={currentPath} />
+                              <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+                                  <Routes>
+                                      <Route path="/" element={
+                                          <ProtectedRoute>
+                                              <Dashboard />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/reservations" element={
+                                          <ProtectedRoute>
+                                              <Reservations />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/form" element={
+                                          <ProtectedRoute>
+                                              <Form />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/help" element={
+                                          <ProtectedRoute>
+                                              <Help />
+                                          </ProtectedRoute>
+                                      } />
+                                      <Route path="/settings" element={
+                                          <ProtectedRoute>
+                                              <Settings />
+                                          </ProtectedRoute>
+                                      } />
+                                  </Routes>
+                              </Box>
+                          </Box>
+                      </Box>
+                  ) : (
+                      <Routes>
+                          <Route path="/login" element={<Login />} />
+                          <Route path="*" element={<Navigate to="/login" />} />
+                      </Routes>
+                  )}
                 <SidebarProvider>
                     <CssBaseline />
                     {isAuthenticated ? (
