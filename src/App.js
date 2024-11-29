@@ -55,49 +55,6 @@ function App() {
       <ColorModeContext.Provider value={colorMode}>
           <ThemeProvider theme={theme}>
               <DateProvider>
-                  <CssBaseline />
-                  {isAuthenticated ? (
-                      <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-                          <Topbar />
-                          <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                              <AppSidebar currentPath={currentPath} />
-                              <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
-                                  <Routes>
-                                      <Route path="/" element={
-                                          <ProtectedRoute>
-                                              <Dashboard />
-                                          </ProtectedRoute>
-                                      } />
-                                      <Route path="/reservations" element={
-                                          <ProtectedRoute>
-                                              <Reservations />
-                                          </ProtectedRoute>
-                                      } />
-                                      <Route path="/form" element={
-                                          <ProtectedRoute>
-                                              <Form />
-                                          </ProtectedRoute>
-                                      } />
-                                      <Route path="/help" element={
-                                          <ProtectedRoute>
-                                              <Help />
-                                          </ProtectedRoute>
-                                      } />
-                                      <Route path="/settings" element={
-                                          <ProtectedRoute>
-                                              <Settings />
-                                          </ProtectedRoute>
-                                      } />
-                                  </Routes>
-                              </Box>
-                          </Box>
-                      </Box>
-                  ) : (
-                      <Routes>
-                          <Route path="/login" element={<Login />} />
-                          <Route path="*" element={<Navigate to="/login" />} />
-                      </Routes>
-                  )}
                 <SidebarProvider>
                     <CssBaseline />
                     {isAuthenticated ? (

@@ -7,25 +7,29 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import Header from "../../components/header.jsx"
 import { useState } from 'react';
+import ApiClient from '../../services/apiClient.js';
 
 // INITIAL VALUES
 const initialValues = {
     firstName: "",
     lastName: "",
-    contact: "",
+    phoneNum: "",
+    email: "",
     pax: "",
     tableId: "",
     time: null,
     date: null,
+    notes: "",
 }
 
 // VALIDATION SCHEMA
 const userSchema = yup.object().shape({
     firstName: yup.string().required("First name is required"),
     lastName: yup.string().required("Last name is required"),
-    contact: yup.string()
+    phoneNum: yup.string()
         .required("Phone number is required")
         .matches(/^\+?[\d\s-]+$/, "Invalid phone number format"),
+    email: yup.string().email("Invalid email format").required("Email is required"),
     pax: yup.number()
         .required("Number of people is required")
         .min(1, "Must be at least 1 person")
@@ -33,6 +37,7 @@ const userSchema = yup.object().shape({
     tableId: yup.string().required("Table selection is required"),
     time: yup.date().required("Time is required"),
     date: yup.date().required("Date is required"),
+    notes: yup.string(),
 })
 
 const Form = () => {
@@ -40,32 +45,26 @@ const Form = () => {
     const [apiStatus, setApiStatus] = useState(null);
 
     async function handlePost(values, { resetForm }) {
+        // Combine date and time
+        const dateTime = new Date(values.date);
+        const timeValue = new Date(values.time);
+        dateTime.setHours(timeValue.getHours());
+        dateTime.setMinutes(timeValue.getMinutes());
+
+        const mappedValues = {
+            //No sitting ID as that will be handled on the backend.
+            startTimeDate: dateTime.toISOString(),
+            numPeople: parseInt(values.pax),
+            firstName: values.firstName,
+            lastName: values.lastName,
+            phoneNum: values.phoneNum,
+            email: values.email,
+            tableName: values.tableId
+        };
+
+        console.log('Posting new reservation:', mappedValues);
         try {
-            // Combine date and time
-            const dateTime = new Date(values.date);
-            const timeValue = new Date(values.time);
-            dateTime.setHours(timeValue.getHours());
-            dateTime.setMinutes(timeValue.getMinutes());
-    
-            const mappedValues = {
-                resDate: dateTime.toISOString(),
-                numPeople: parseInt(values.pax),
-                firstName: values.firstName,
-                lastName: values.lastName,
-                phoneNum: values.contact,
-                tableName: values.tableId,
-                resStatus: 'Pending'
-            };
-    
-            console.log('Posting new reservation:', mappedValues);
-    
-            const response = await fetch(`http://localhost:3001/reservation`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(mappedValues)
-            });
+            const response = await ApiClient.post(`/reservations`, mappedValues)
     
             if (!response.ok) {
                 const errorData = await response.json();
@@ -138,10 +137,23 @@ const Form = () => {
                                         label='Phone Number'
                                         onBlur={handleBlur}
                                         onChange={handleChange}
-                                        value={values.contact}
-                                        name="contact"
-                                        error={!!touched.contact && !!errors.contact}
-                                        helperText={touched.contact && errors.contact}
+                                        value={values.phoneNum}
+                                        name="phoneNum"
+                                        error={!!touched.phoneNum && !!errors.phoneNum}
+                                        helperText={touched.phoneNum && errors.phoneNum}
+                                        sx={{ gridColumn: "span 4" }}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        variant='filled'
+                                        type='text'
+                                        label='Email'
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        value={values.email}
+                                        name="email"
+                                        error={!!touched.email && !!errors.email}
+                                        helperText={touched.email && errors.email}
                                         sx={{ gridColumn: "span 4" }}
                                     />
                                     <TextField
