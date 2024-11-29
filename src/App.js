@@ -61,7 +61,7 @@ function App() {
                         <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
                             <Topbar />
                             <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                                <AppSidebar />
+                                <AppSidebar  />
                                 <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
                                     <Routes>
                                         <Route path="/" element={
