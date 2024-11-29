@@ -37,7 +37,6 @@ const userSchema = yup.object().shape({
     tableId: yup.string().required("Table selection is required"),
     time: yup.date().required("Time is required"),
     date: yup.date().required("Date is required"),
-    notes: yup.string(),
 })
 
 const Form = () => {
@@ -222,12 +221,13 @@ const Form = () => {
                                     <TextField
                                         fullWidth
                                         variant='filled'
+                                        multiline
+                                        rows={4}
                                         label='Special Requests'
                                         onBlur={handleBlur}
                                         onChange={handleChange}
                                         value={values.notes}
-                                        name="specialReqs"
-                                        multiline
+                                        name="notes"
                                         sx={{ gridColumn: "span 4" }}
                                     />
                                 </Box>
