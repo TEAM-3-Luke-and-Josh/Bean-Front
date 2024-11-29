@@ -53,12 +53,14 @@ const Form = () => {
 
         const mappedValues = {
             //No sitting ID as that will be handled on the backend.
+            sittingID: 597,
             startTimeDate: dateTime.toISOString(),
             numPeople: parseInt(values.pax),
             firstName: values.firstName,
             lastName: values.lastName,
             phoneNum: values.phoneNum,
             email: values.email,
+            notes: values.notes,
             tableName: values.tableId
         };
 
@@ -217,6 +219,17 @@ const Form = () => {
                                             minDate={new Date()}
                                         />
                                     </Box>
+                                    <TextField
+                                        fullWidth
+                                        variant='filled'
+                                        label='Special Requests'
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        value={values.notes}
+                                        name="specialReqs"
+                                        multiline
+                                        sx={{ gridColumn: "span 4" }}
+                                    />
                                 </Box>
                                 <Box display="flex" justifyContent="start" mt="40px">
                                     <Button type="submit" color="secondary" variant="contained">
