@@ -52,25 +52,20 @@ const Form = () => {
 
         const mappedValues = {
             //No sitting ID as that will be handled on the backend.
-            sittingID: 597,
-            startTimeDate: dateTime.toISOString(),
-            numPeople: parseInt(values.pax),
+            sittingID: 851,
+            startTime: dateTime.toISOString(),
+            numberOfGuests: parseInt(values.pax),
             firstName: values.firstName,
             lastName: values.lastName,
-            phoneNum: values.phoneNum,
+            phoneNumber: values.phoneNum,
             email: values.email,
-            notes: values.notes,
-            tableName: values.tableId
+            notes: values.notes || '',
+            tableID: values.tableId
         };
 
         console.log('Posting new reservation:', mappedValues);
         try {
             const response = await ApiClient.post(`/reservations`, mappedValues)
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to post reservation');
-            }
     
             setApiStatus('Reservation saved successfully.');
     
