@@ -1,10 +1,10 @@
-// src/services/apiClient.js
-
 import AuthService from './authService';
 
 class ApiClient {
     static async request(endpoint, options = {}) {
-        const baseURL = '/api';
+        const baseURL = window.location.origin.includes('localhost') 
+            ? 'http://localhost:4000/api' 
+            : 'https://api.zebra.dev.thickets.onl/api';
         const url = `${baseURL}${endpoint}`;
     
         try {
@@ -23,6 +23,12 @@ class ApiClient {
                 statusText: response.statusText,
                 url: response.url
             });
+
+            // For non-JSON responses (like 405 errors), return a custom error object
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new Error(`Server returned ${response.status} ${response.statusText}`);
+            }
     
             const data = await response.json();
     
