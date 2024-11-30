@@ -28,7 +28,6 @@ const defaultValues = {
     sittingId: "",
     time: null,
     date: new Date(),
-};
 
 const userSchema = yup.object().shape({
     firstName: yup.string()
@@ -88,6 +87,26 @@ const Form = () => {
     }, []);
 
     async function handlePost(values, { resetForm }) {
+        // Combine date and time
+        const dateTime = new Date(values.date);
+        const timeValue = new Date(values.time);
+        dateTime.setHours(timeValue.getHours());
+        dateTime.setMinutes(timeValue.getMinutes());
+
+        const mappedValues = {
+            //No sitting ID as that will be handled on the backend.
+            sittingID: 851,
+            startTime: dateTime.toISOString(),
+            numberOfGuests: parseInt(values.pax),
+            firstName: values.firstName,
+            lastName: values.lastName,
+            phoneNumber: values.phoneNum,
+            email: values.email,
+            notes: values.notes || '',
+            tableID: values.tableId
+        };
+
+        console.log('Posting new reservation:', mappedValues);
         try {
             const dateTime = new Date(values.date);
             const timeValue = new Date(values.time);

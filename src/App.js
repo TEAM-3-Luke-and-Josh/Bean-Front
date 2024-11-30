@@ -48,7 +48,6 @@ function App() {
   /**Create location object and then get the current location/path */
   const location = useLocation();
   const currentPath = location.pathname
-
     return (
         <ColorModeContext.Provider value={colorMode}>
             <ThemeProvider theme={theme}>
