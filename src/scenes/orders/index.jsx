@@ -3,7 +3,6 @@ import { DataGrid } from "@mui/x-data-grid";
 import Header from "../../components/header.jsx";
 import { tokens } from "../../theme.js";
 import { useState, useEffect, useCallback } from 'react';
-import { DateContext } from '../global/TopBar.jsx';
 import ApiClient from '../../services/apiClient';
 import OrderModal from '../../components/OrderModal.jsx';
 
@@ -123,14 +122,7 @@ const Orders = () => {
     const fetchOrders = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/orders');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
+            const data = await ApiClient.get('/orders');
             const transformedData = data.map(order => ({
                 id: order.orderID,
                 orderTime: order.orderTime,
@@ -140,7 +132,6 @@ const Orders = () => {
                 orderStatus: order.orderStatus,
                 specialRequests: order.specialRequests
             }));
-    
             setOrders(transformedData);
         } catch (error) {
             console.error('Error fetching orders:', error);

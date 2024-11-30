@@ -23,6 +23,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import ApiClient from '../../services/apiClient';
 
 // Menu Images
 import avToast from '../../../src/images/menu_items/av_toast.jpg';
@@ -61,32 +62,28 @@ export default function OrderSystem() {
     // Fetch menu data
     useEffect(() => {
         const fetchMenu = async () => {
-          try {
-            const response = await fetch('/api/menu');
-            const data = await response.json();
-            setMenu(data);
-            setLoading(false);
-          } catch (error) {
-            console.error('Error fetching menu:', error);
-            setLoading(false);
-          }
+            try {
+                const data = await ApiClient.get('/menu');
+                setMenu(data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching menu:', error);
+                setLoading(false);
+            }
         };
         fetchMenu();
-      }, []);
+    }, []);
 
     useEffect(() => {
         const fetchTables = async () => {
             try {
-                const response = await fetch('/api/tables');
-                const data = await response.json(); // Parse the JSON response
-                
+                const data = await ApiClient.get('/tables');
                 const sortedTables = data.sort((a, b) => {
                     if (a.area === b.area) {
                         return a.tableID.localeCompare(b.tableID, undefined, { numeric: true });
                     }
                     return a.area.localeCompare(b.area);
                 });
-                
                 console.log(sortedTables);
                 setTables(sortedTables);
             } catch (error) {
@@ -95,6 +92,7 @@ export default function OrderSystem() {
         };
         fetchTables();
     }, []);
+    
 
     // Update cart total whenever cart changes
     useEffect(() => {
@@ -284,7 +282,9 @@ export default function OrderSystem() {
                             sx={{ 
                                 bgcolor: selectedCategory === category ? colors.green[500] : 'transparent',
                                 color: selectedCategory === category ? '#fff' : colors.green[500],
-                                '&:hover': { bgcolor: colors.green[400] }
+                                '&:hover': { 
+                                    bgcolor: selectedCategory === category ? colors.green[600] : colors.green[100]
+                                }
                             }}
                         />
                     ))}

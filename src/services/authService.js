@@ -1,3 +1,5 @@
+import ApiClient from './apiClient';
+
 const TOKEN_KEY = 'jwt_token';
 
 class AuthService {
@@ -20,34 +22,10 @@ class AuthService {
 
     static async login(username, password) {
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
+            const data = await ApiClient.post('/auth/login', { 
+                username, 
+                password 
             });
-
-            // Check if the server responded
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    throw new Error('Invalid username or password');
-                }
-                if (response.status === 404) {
-                    throw new Error('Server endpoint not found');
-                }
-                if (response.status >= 500) {
-                    throw new Error('Server error. Please contact administration.');
-                }
-                throw new Error('Login failed. Please try again');
-            }
-
-            let data;
-            try {
-                data = await response.json();
-            } catch (jsonError) {
-                throw new Error('Server unavailable. Please check your connection and try again');
-            }
 
             if (data.token) {
                 this.setToken(data.token);
@@ -61,12 +39,25 @@ class AuthService {
             }
             throw new Error('Invalid server response');
         } catch (error) {
-            // Check if it's a network error (server unreachable)
+            // Handle specific error cases
+            if (error.message.includes('405')) {
+                throw new Error('Login endpoint not available. Please contact system administrator.');
+            }
+            if (error.message.includes('401') || error.message.includes('403')) {
+                throw new Error('Invalid username or password');
+            }
+            if (error.message.includes('404')) {
+                throw new Error('Login service not found');
+            }
+            if (error.message.includes('500')) {
+                throw new Error('Server error. Please contact administration.');
+            }
+            // Network errors
             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                 throw new Error('Server unavailable. Please check if the server is running');
             }
-            // Rethrow the error with our custom message
-            throw error;
+            // Generic error fallback
+            throw new Error(error.message || 'Login failed. Please try again');
         }
     }
 

@@ -148,17 +148,17 @@ const AppSidebar = ({currentPath}) => {
 export default AppSidebar;
 
 // MENU ITEM FORMAT
-const Item = ({ title, to, icon, selected, setSelected, onClick, isLogout }) => {
+const Item = ({ title, to, icon, active, setSelected, onClick, isLogout }) => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     
     const menuItem = (
         <MenuItem
-            active={selected === title}
+            active={active}  // Changed from selected === title to just active
             style={{
                 color: "white",
                 backgroundColor: isLogout ? colors.pink[500] : 
-                    selected === title ? colors.green[500] : 'transparent',
+                    active ? colors.green[500] : 'transparent',
             }}
             onClick={() => {
                 if (onClick) {
@@ -174,7 +174,6 @@ const Item = ({ title, to, icon, selected, setSelected, onClick, isLogout }) => 
         </MenuItem>
     );
 
-    // If there's a 'to' prop, wrap in Link, otherwise return just the MenuItem
     return to ? (
         <Link to={to} style={{ textDecoration: 'none' }}>
             {menuItem}
