@@ -57,6 +57,7 @@ export default function OrderSystem() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [specialInstructions, setSpecialInstructions] = useState('');
     const [tables, setTables] = useState([]);
+    const [apiStatus, setApiStatus] = useState(null);
 
     const categories = ['all', 'breakfast', 'lunch mains', 'dinner mains', 'sides', 'beverages', 'desserts'];
 
@@ -202,12 +203,16 @@ export default function OrderSystem() {
                 items: orderItems
             };
     
-            const response = await ApiClient.post('/orders', orderData);
+            await ApiClient.post('/orders', orderData);
             
-            console.log('Order placed successfully:', response);
             clearCart();
             setSelectedTable('');
-            alert('Order placed successfully!');
+            setApiStatus('Order placed successfully');
+
+            // Clear success message after delay
+            setTimeout(() => {
+                setApiStatus(null);
+            }, 3000);
     
         } catch (error) {
             console.error('Error placing order:', error);
@@ -247,6 +252,16 @@ export default function OrderSystem() {
 
             {/* Main Content Area */}
             <Box sx={{ flexGrow: 1, p: 3, pr: '220px' }}>
+
+                {/* Show ApiStatus if present */}
+                {apiStatus && (
+                    <Typography 
+                        mt={2} 
+                        color={apiStatus.includes('Error') ? 'error' : 'success.main'}
+                    >
+                        {apiStatus}
+                    </Typography>
+                )}
 
                 {/* Modified Header with prominent table selection */}
                 <Box mb={4}>
