@@ -212,7 +212,7 @@ export default function OrderSystem() {
     
             console.log('Final payload as string:', JSON.stringify(orderData, null, 2));
     
-            const response = await fetch('/api/orders', {
+            const response = await ApiClient.post('/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

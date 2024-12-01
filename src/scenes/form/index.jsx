@@ -1,4 +1,4 @@
-import { Box, Button, TextField, useMediaQuery, Typography, Select, MenuItem, FormControl, InputLabel, useTheme } from '@mui/material';
+import { Box, Button, TextField, useMediaQuery, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,7 +8,6 @@ import * as yup from "yup";
 import Header from "../../components/header.jsx"
 import { useState, useEffect } from 'react';
 import ApiClient from '../../services/apiClient';
-import { tokens } from "../../theme.js"
 
 const findSittingType = (hour) => {
     if (hour >= 7 && hour < 11) return "Breakfast";
@@ -46,12 +45,9 @@ const userSchema = yup.object().shape({
 });
 
 const Form = () => {
-    const theme = useTheme();
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [apiStatus, setApiStatus] = useState(null);
     const [tables, setTables] = useState([]);
-    const colors = tokens(theme.palette.mode);
-
     useEffect(() => {
         const fetchTables = async () => {
             try {
@@ -69,29 +65,34 @@ const Form = () => {
 
     async function handlePost(values, { resetForm }) {
         try {
+            // Create date and adjust to Sydney timezone (+11 hours)
             const dateTime = new Date(values.date);
             const timeValue = new Date(values.time);
-            dateTime.setHours(timeValue.getHours());
-            dateTime.setMinutes(timeValue.getMinutes());
-
-            const formattedDate = dateTime.toISOString().split('T')[0];
+            dateTime.setHours(timeValue.getHours(), timeValue.getMinutes());
+            const sydneyOffset = 660; // Sydney is UTC+11
+            const sydneyDate = new Date(dateTime.getTime() + (dateTime.getTimezoneOffset() + sydneyOffset) * 60000);
+     
+            // Get sitting type based on Sydney time
+            const sittingType = findSittingType(sydneyDate.getHours());
+            const formattedDate = sydneyDate.toISOString().split('T')[0];
             const sittingData = await ApiClient.get(`/sittings/date/${formattedDate}`);
-            
-            const sittingType = findSittingType(timeValue.getHours());
             const sitting = sittingData.find(s => s.sittingType === sittingType);
             
             if (!sitting) throw new Error('No valid sitting found for selected time');
-
+     
             const mappedValues = {
                 sittingId: sitting.sittingID,
-                startTime: dateTime.toISOString(),
+                startTime: sydneyDate.toISOString(),
                 numberOfGuests: parseInt(values.pax),
                 firstName: values.firstName.trim(),
                 lastName: values.lastName.trim(),
                 phoneNumber: values.contact.trim(),
                 email: values.email.trim(),
-                notes: ""
+                notes: "",
+                tables: [values.tableId]
             };
+
+            console.log(mappedValues);
 
             await ApiClient.post('/reservations', mappedValues);
             setApiStatus('Reservation saved successfully.');

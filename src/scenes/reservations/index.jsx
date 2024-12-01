@@ -31,8 +31,7 @@ const Reservations = () => {
                     return date.toLocaleTimeString('en-AU', {
                         hour: 'numeric',
                         minute: 'numeric',
-                        hour12: true,
-                        timeZone: 'Australia/Sydney',
+                        hour12: true
                     });
                 } catch (error) {
                     console.error('Error formatting date:', error);
