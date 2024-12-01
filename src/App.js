@@ -6,6 +6,7 @@ import { DateProvider } from "./scenes/global/TopBar.jsx";
 import { SidebarProvider } from './scenes/contexts/SidebarContext';
 import { useState, useEffect } from 'react';
 import AuthService from './services/authService';
+import CartProvider from './scenes/contexts/CartContext';
 
 // COMPONENTS
 import Topbar from './scenes/global/TopBar.jsx'
@@ -54,59 +55,61 @@ function App() {
             <ThemeProvider theme={theme}>
                 <DateProvider>
                     <SidebarProvider>
-                        <CssBaseline />
-                        {isAuthenticated ? (
-                            <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-                                <Topbar />
-                                <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-                                    <AppSidebar currentPath={currentPath} />
-                                    <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
-                                        <Routes>
-                                            <Route path="/" element={
-                                                <ProtectedRoute>
-                                                    <Dashboard />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/reservations" element={
-                                                <ProtectedRoute>
-                                                    <Reservations />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/ordering" element={
-                                                <ProtectedRoute>
-                                                    <OrderSystem />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/orders" element={
-                                                <ProtectedRoute>
-                                                    <Orders />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/form" element={
-                                                <ProtectedRoute>
-                                                    <Form />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/help" element={
-                                                <ProtectedRoute>
-                                                    <Help />
-                                                </ProtectedRoute>
-                                            } />
-                                            <Route path="/settings" element={
-                                                <ProtectedRoute>
-                                                    <Settings />
-                                                </ProtectedRoute>
-                                            } />
-                                        </Routes>
+                        <CartProvider>
+                            <CssBaseline />
+                            {isAuthenticated ? (
+                                <Box className="app" sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+                                    <Topbar />
+                                    <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                                        <AppSidebar currentPath={currentPath} />
+                                        <Box component="main" sx={{ flexGrow: 1, p: 3, overflow: 'auto' }}>
+                                            <Routes>
+                                                <Route path="/" element={
+                                                    <ProtectedRoute>
+                                                        <Dashboard />
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/reservations" element={
+                                                    <ProtectedRoute>
+                                                        <Reservations />
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/ordering" element={
+                                                    <ProtectedRoute>
+                                                        <OrderSystem />
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/orders" element={
+                                                    <ProtectedRoute>
+                                                        <Orders />
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/form" element={
+                                                    <ProtectedRoute>
+                                                        <Form />
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/help" element={
+                                                    <ProtectedRoute>
+                                                        <Help />
+                                                    </ProtectedRoute>
+                                                } />
+                                                <Route path="/settings" element={
+                                                    <ProtectedRoute>
+                                                        <Settings />
+                                                    </ProtectedRoute>
+                                                } />
+                                            </Routes>
+                                        </Box>
                                     </Box>
                                 </Box>
-                            </Box>
-                        ) : (
-                            <Routes>
-                                <Route path="/login" element={<Login />} />
-                                <Route path="*" element={<Navigate to="/login" />} />
-                            </Routes>
-                        )}
+                            ) : (
+                                <Routes>
+                                    <Route path="/login" element={<Login />} />
+                                    <Route path="*" element={<Navigate to="/login" />} />
+                                </Routes>
+                            )}
+                        </CartProvider>
                     </SidebarProvider>
                 </DateProvider>
             </ThemeProvider>

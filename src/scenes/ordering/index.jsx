@@ -24,6 +24,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ApiClient from '../../services/apiClient';
+import { useCart } from '../../scenes/contexts/CartContext';
 
 // Menu Images
 import avToast from '../../../src/images/menu_items/av_toast.jpg';
@@ -39,14 +40,12 @@ import steakRib from '../../../src/images/menu_items/steak_rib.jpg';
 import steakSalm from '../../../src/images/menu_items/steak_salm.jpg';
 import stickPud from '../../../src/images/menu_items/sticky_pud.jpg';
 
-
-
 export default function OrderSystem() {
+    const { cart, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [menu, setMenu] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [cart, setCart] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -93,7 +92,6 @@ export default function OrderSystem() {
         fetchTables();
     }, []);
     
-
     // Update cart total whenever cart changes
     useEffect(() => {
         const total = cart.reduce((sum, item) => {
@@ -138,17 +136,11 @@ export default function OrderSystem() {
     };
 
     const handleRemoveFromCart = (index) => {
-        setCart(prev => prev.filter((_, i) => i !== index));
+        removeFromCart(index);
     };
 
     const handleUpdateQuantity = (index, increment) => {
-        setCart(prev => prev.map((item, i) => {
-            if (i === index) {
-                const newQuantity = Math.max(1, item.quantity + increment);
-                return { ...item, quantity: newQuantity };
-            }
-            return item;
-        }));
+        updateQuantity(index, increment);
     };
 
     const handleToggleOption = (option) => {
@@ -177,15 +169,7 @@ export default function OrderSystem() {
     };
     
     const handleConfirmAddToCart = (item, quantity, selectedOptions, specialInstructions) => {
-        console.log('Item being added to cart:', {
-            itemID: item.itemID,  // Check if this exists
-            menuItemItemID: item.menuItemItemID, // Check if this exists instead
-            item,
-            quantity,
-            selectedOptions,
-            specialInstructions
-        });
-        setCart(prev => [...prev, { ...item, quantity, selectedOptions, specialInstructions }]);
+        addToCart({ ...item, quantity, selectedOptions, specialInstructions });
         handleModalClose();
     };
 
@@ -209,7 +193,7 @@ export default function OrderSystem() {
             const response = await ApiClient.post('/orders', orderData);
             
             console.log('Order placed successfully:', response);
-            setCart([]);
+            clearCart();
             setSelectedTable('');
             alert('Order placed successfully!');
     
@@ -218,6 +202,16 @@ export default function OrderSystem() {
             alert(`Failed to place order: ${error.message}`);
         }
     };
+
+    useEffect(() => {
+        const total = cart.reduce((sum, item) => {
+            const itemTotal = item.price * item.quantity;
+            const optionsTotal = item.selectedOptions?.reduce((optSum, opt) => 
+                optSum + opt.priceModifier, 0) || 0;
+            return sum + (itemTotal + (optionsTotal * item.quantity));
+        }, 0);
+        setCartTotal(total);
+    }, [cart]);
     
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
