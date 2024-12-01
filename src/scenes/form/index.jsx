@@ -1,4 +1,4 @@
-import { Box, Button, TextField, useMediaQuery, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, Button, TextField, useMediaQuery, Typography, Select, MenuItem, FormControl, InputLabel, useTheme } from '@mui/material';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,6 +8,7 @@ import * as yup from "yup";
 import Header from "../../components/header.jsx"
 import { useState, useEffect } from 'react';
 import ApiClient from '../../services/apiClient';
+import { tokens } from "../../theme";
 
 const findSittingType = (hour) => {
     if (hour >= 7 && hour < 11) return "Breakfast";
@@ -45,9 +46,12 @@ const userSchema = yup.object().shape({
 });
 
 const Form = () => {
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const [apiStatus, setApiStatus] = useState(null);
     const [tables, setTables] = useState([]);
+
     useEffect(() => {
         const fetchTables = async () => {
             try {
@@ -110,8 +114,26 @@ const Form = () => {
 
     return (
         <Box>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Header title="Add a Reservation" subtitle="Fill in the details below to add a new reservation" />
+            <Box>
+               
+                <Box sx={{ mb: 4, backgroundColor: colors.brown[100], p: 3, borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom>Reservation Guidelines</Typography>
+                    <Typography variant="body1" paragraph>
+                        Bean Scene offers three dining sittings daily:
+                    </Typography>
+                    <ul>
+                        <Typography component="li">Breakfast: 7:00 AM - 11:00 AM</Typography>
+                        <Typography component="li">Lunch: 11:30 AM - 3:30 PM</Typography>
+                        <Typography component="li">Dinner: 5:00 PM - 10:00 PM</Typography>
+                    </ul>
+                    <Typography variant="body1" paragraph>
+                        Each reservation is allocated a 90-minute dining period. For groups larger than 8, please speak to the manager before booking.
+                    </Typography>
+                </Box>
+
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    {/* Rest of the existing form code remains the same... */}
+                </LocalizationProvider>
             </Box>
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -247,7 +269,9 @@ const Form = () => {
                                 </FormControl>
                             </Box>
                             <Box display="flex" justifyContent="start" mt="40px">
-                                <Button type="submit" color="secondary" variant="contained">
+                                <Button type="submit" color="secondary" variant="contained" sx={{
+                                    color: "white"
+                                }}>
                                     Add Reservation
                                 </Button>
                             </Box>
