@@ -1,101 +1,193 @@
 import { Box, Typography } from '@mui/material';
 import Header from "../../components/header.jsx";
-import Accordian from "@mui/material/Accordion";
+import Accordion from "@mui/material/Accordion";
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import { ExpandMoreOutlined } from '@mui/icons-material';
 
 const Help = () => {
-    
     return (
         <Box>
             <Box display="flex" justifyContent="space-between" alignItems="center">
-                <Header title="Help" subtitle="Get help using the Bean Scene App" />
+                <Header title="Help" subtitle="Comprehensive guide for using the Bean Scene system" />
             </Box>
             <Box>
-
-                {/* Question 1 */}
-                <Accordian>
+                {/* Dashboard Overview */}
+                <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            Navigating the application
+                            Dashboard Overview
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
+                        <Typography paragraph>
+                            The dashboard provides key metrics for your restaurant:
+                        </Typography>
+                        <Typography paragraph>
+                            • Total Customers: Shows registered customer count with growth percentage
+                        </Typography>
+                        <Typography paragraph>
+                            • Today's Orders: Current day's order count and trend
+                        </Typography>
+                        <Typography paragraph>
+                            • Today's Reservations: Shows upcoming reservations with capacity indicators
+                        </Typography>
                         <Typography>
-                            When trying to Navigate the application, it is best to tap the burger menu icon to display the name of each page next to their icons.
+                            • Revenue Graph: Visual representation of sales performance
                         </Typography>
                     </AccordionDetails>
-                </Accordian>
+                </Accordion>
 
-                {/* Question 2 */}
-                <Accordian>
+                {/* Reservation Management */}
+                <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            How do I save a Reservation?
+                            Managing Reservations
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
+                        <Typography paragraph>
+                            <strong>Adding New Reservations:</strong>
+                        </Typography>
+                        <Typography paragraph>
+                            1. Click the "Add Reservation" icon in the sidebar
+                        </Typography>
+                        <Typography paragraph>
+                            2. Fill in required details: guest information, date, time, number of guests
+                        </Typography>
+                        <Typography paragraph>
+                            3. Select available tables based on party size
+                        </Typography>
+                        <Typography paragraph>
+                            <strong>Viewing & Modifying Reservations:</strong>
+                        </Typography>
+                        <Typography paragraph>
+                            • Use the calendar at the top to navigate dates
+                        </Typography>
+                        <Typography paragraph>
+                            • Click any reservation to view full details or make changes
+                        </Typography>
+                        <Typography paragraph>
+                            • Update status between: Pending, Confirmed, Seated, Completed, or Cancelled
+                        </Typography>
                         <Typography>
-                            Navigate to the Add a Reservation page (the plus on the navbar), input the necessary fields and then click/tap on the ADD RESERVATION button.
+                            • Add special notes or requirements for the reservation
                         </Typography>
                     </AccordionDetails>
-                </Accordian>
+                </Accordion>
 
-                {/* Question 3 */}
-                <Accordian>
+                {/* Order System */}
+                <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            Viewing Reservations
+                            Using the Order System
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
+                        <Typography paragraph>
+                            <strong>Taking Orders:</strong>
+                        </Typography>
+                        <Typography paragraph>
+                            1. Select the table number from the dropdown
+                        </Typography>
+                        <Typography paragraph>
+                            2. Browse menu items by category or use the search
+                        </Typography>
+                        <Typography paragraph>
+                            3. Click items to add to order, specify quantity and any modifications
+                        </Typography>
+                        <Typography paragraph>
+                            4. Review order in the sidebar before submitting
+                        </Typography>
+                        <Typography paragraph>
+                            <strong>Managing Active Orders:</strong>
+                        </Typography>
+                        <Typography paragraph>
+                            • View all orders in the Orders tab
+                        </Typography>
+                        <Typography paragraph>
+                            • Update item status: Pending → In Progress → Ready → Served
+                        </Typography>
                         <Typography>
-                            If you would like to view more details of each Reservation, tap/click on the Reservation in the table and a popup should appear with the necessary information.
+                            • Add special instructions or dietary requirements
                         </Typography>
                     </AccordionDetails>
-                </Accordian>
+                </Accordion>
 
-                {/* Question 4 */}
-                <Accordian>
+                {/* Table Management */}
+                <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            Terminology
+                            Table Management
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography>
-                            If any of the terminology on this application is confusing this will serve to de-jargon it:  
+                        <Typography paragraph>
+                            Tables are organized by three areas:
+                        </Typography>
+                        <Typography paragraph>
+                            • Main (M1-M10): Indoor dining area
+                        </Typography>
+                        <Typography paragraph>
+                            • Outside (O1-O10): Outdoor seating
+                        </Typography>
+                        <Typography paragraph>
+                            • Balcony (B1-B10): Upper level seating
                         </Typography>
                         <Typography>
-                            Covers = Number of Customers currently in the building.
-                        </Typography>
-                        <Typography>
-                            PAX = Number of Customers per Reservation (A PAX of 12 means that there are 12 people for that Reservation).
-                        </Typography>
-                        <Typography>
-                            T# = Table number, the table that the Reservation will be sat at.
+                            Tables display capacity and current status in the reservation view
                         </Typography>
                     </AccordionDetails>
-                </Accordian>
+                </Accordion>
 
-                {/* Question 5 */}
-                <Accordian>
+                {/* Common Terms */}
+                <Accordion>
                     <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
                         <Typography variant="h5">
-                            Need further help?
+                            Terminology Guide
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails>
+                        <Typography paragraph>
+                            <strong>Covers:</strong> Total number of guests currently in the restaurant
+                        </Typography>
+                        <Typography paragraph>
+                            <strong>PAX:</strong> Number of guests in a reservation (e.g., PAX 4 = party of 4)
+                        </Typography>
+                        <Typography paragraph>
+                            <strong>Sitting:</strong> Defined service period (Breakfast, Lunch, or Dinner)
+                        </Typography>
                         <Typography>
-                            Contact the support team for this application at: gelossupport@gelosmail.com
+                            <strong>Table ID:</strong> Location code (e.g., M1 = Main area table 1, O2 = Outside table 2)
                         </Typography>
                     </AccordionDetails>
-                </Accordian>
-            
+                </Accordion>
+
+                {/* Support */}
+                <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+                        <Typography variant="h5">
+                            Additional Support
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <Typography paragraph>
+                            For technical support or system issues, contact:
+                        </Typography>
+                        <Typography paragraph>
+                            Email: itdude@beanscene.com
+                        </Typography>
+                        <Typography paragraph>
+                            Emergency: ckaiser@gelos.com
+                        </Typography>
+                        <Typography>
+                            Phone: (02) 1111 2222
+                        </Typography>
+                    </AccordionDetails>
+                </Accordion>
             </Box>
         </Box>
-    )
-}
+    );
+};
 
 export default Help;
