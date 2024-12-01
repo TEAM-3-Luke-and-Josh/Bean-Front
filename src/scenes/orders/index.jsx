@@ -2,13 +2,15 @@ import { Box, useTheme } from '@mui/material';
 import { DataGrid } from "@mui/x-data-grid";
 import Header from "../../components/header.jsx";
 import { tokens } from "../../theme.js";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
+import { DateContext } from '../global/TopBar.jsx';
 import ApiClient from '../../services/apiClient';
 import OrderModal from '../../components/OrderModal.jsx';
 
 const Orders = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    const { selectedDate } = useContext(DateContext);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [openModal, setOpenModal] = useState(false);
@@ -122,7 +124,11 @@ const Orders = () => {
     const fetchOrders = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await ApiClient.get('/orders');
+            const localDate = new Date(selectedDate);
+            localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+            const formattedDate = localDate.toISOString().split('T')[0];
+            
+            const data = await ApiClient.get(`/orders/date/${formattedDate}`);
             const transformedData = data.map(order => ({
                 id: order.orderID,
                 orderTime: order.orderTime,
@@ -139,7 +145,7 @@ const Orders = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [selectedDate]);
 
     useEffect(() => {
         fetchOrders();
