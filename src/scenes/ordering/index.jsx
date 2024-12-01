@@ -14,11 +14,13 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
+    Alert,
+    ListSubheader,
+    Tooltip,
     Paper
 } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { tokens } from '../../theme';
-import Header from '../../components/header';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
@@ -102,6 +104,16 @@ export default function OrderSystem() {
         }, 0);
         setCartTotal(total);
     }, [cart]);
+
+    const groupTablesByArea = (tables) => {
+        return tables.reduce((acc, table) => {
+            if (!acc[table.area]) {
+                acc[table.area] = [];
+            }
+            acc[table.area].push(table);
+            return acc;
+        }, {});
+    };
 
     const mapImageUrl = (path) => {
         // Map the category and name to the appropriate image file
@@ -216,24 +228,51 @@ export default function OrderSystem() {
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
 
+            {/* Show floating alert when no table is selected */}
+            {!selectedTable && (
+                <Alert 
+                    severity="info"
+                    sx={{
+                        position: 'fixed',
+                        bottom: 20,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1000,
+                        boxShadow: 3
+                    }}
+                >
+                    Please select a table to start taking orders
+                </Alert>
+            )}
+
             {/* Main Content Area */}
             <Box sx={{ flexGrow: 1, p: 3, pr: '220px' }}>
 
-                {/* Header with inline table selection */}
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                    <Header title="Place Order" subtitle="Order food and drinks" />
-                    <FormControl sx={{ minWidth: 400 }}>
-                        <InputLabel>Select Table</InputLabel>
+                {/* Modified Header with prominent table selection */}
+                <Box mb={4}>
+                    <FormControl 
+                        fullWidth 
+                        sx={{ 
+                            mt: 2,
+                            border: !selectedTable ? `2px solid ${colors.green[500]}` : 'none',
+                            borderRadius: 1,
+                            p: !selectedTable ? 1 : 0
+                        }}
+                    >
+                        <InputLabel>Select a table to begin ordering</InputLabel>
                         <Select
                             value={selectedTable}
-                            label="Select Table"
+                            label="Select a table to begin ordering"
                             onChange={(e) => setSelectedTable(e.target.value)}
                         >
-                            {tables.map((table) => (
-                                <MenuItem key={table.tableID} value={table.tableID}>
-                                    Table {table.tableID} ({table.area})
-                                </MenuItem>
-                            ))}
+                            {Object.entries(groupTablesByArea(tables)).map(([area, areaTables]) => [
+                                <ListSubheader key={area}>{area} Area</ListSubheader>,
+                                ...areaTables.map((table) => (
+                                    <MenuItem key={table.tableID} value={table.tableID}>
+                                        Table {table.tableID} (Seats {table.capacity})
+                                    </MenuItem>
+                                ))
+                            ])}
                         </Select>
                     </FormControl>
                 </Box>
@@ -262,41 +301,53 @@ export default function OrderSystem() {
                     display="grid" 
                     gridTemplateColumns="repeat(2, 1fr)"
                     gap={3}
-                    >
+                >
                     {menu
                         .filter(item => 
-                        selectedCategory === 'all' || 
-                        item.categoryName.toLowerCase() === selectedCategory.toLowerCase()
+                            selectedCategory === 'all' || 
+                            item.categoryName.toLowerCase() === selectedCategory.toLowerCase()
                         )
                         .map(item => (
-                        <Card key={item.itemID}>
-                            <CardMedia 
-                            component="img" 
-                            height="200" 
-                            image={mapImageUrl(item.imageUrl)} 
-                            alt={item.name} 
-                            />
-                            <CardContent>
-                            <Typography gutterBottom variant="h5">{item.name}</Typography>
-                            <Typography variant="body2" color="text.secondary" mb={2}>
-                                {item.description}
-                            </Typography>
-                            <Typography variant="h6" color={colors.green[500]} mb={2}>
-                                ${item.price.toFixed(2)}
-                            </Typography>
-                            <Button 
-                                fullWidth 
-                                variant="contained" 
-                                sx={{backgroundColor: colors.green[500]}} 
-                                onClick={() => handleAddToCart(item)}
+                            <Tooltip 
+                                key={item.itemID}
+                                title={!selectedTable ? "Please select a table first" : ""}
+                                placement="top"
                             >
-                                Add to Order
-                            </Button>
-                            </CardContent>
-                        </Card>
+                                <Card sx={{ opacity: !selectedTable ? 0.7 : 1 }}>
+                                    <CardMedia 
+                                        component="img" 
+                                        height="200" 
+                                        image={mapImageUrl(item.imageUrl)} 
+                                        alt={item.name} 
+                                    />
+                                    <CardContent>
+                                        <Typography gutterBottom variant="h5">{item.name}</Typography>
+                                        <Typography variant="body2" color="text.secondary" mb={2}>
+                                            {item.description}
+                                        </Typography>
+                                        <Typography variant="h6" color={colors.green[500]} mb={2}>
+                                            ${item.price.toFixed(2)}
+                                        </Typography>
+                                        <Button 
+                                            fullWidth 
+                                            variant="contained" 
+                                            sx={{
+                                                backgroundColor: colors.green[500],
+                                                '&:disabled': {
+                                                    backgroundColor: colors.green[200]
+                                                }
+                                            }}
+                                            disabled={!selectedTable}
+                                            onClick={() => handleAddToCart(item)}
+                                        >
+                                            Add to Order
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </Tooltip>
                         ))}
                     </Box>
-            </Box>
+                </Box>
 
             {/* Order Summary Sidebar */}
             <Paper
