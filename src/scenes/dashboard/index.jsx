@@ -1,11 +1,11 @@
-import { Box, Typography, useTheme, Button } from '@mui/material';
+import { Box, useTheme, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { tokens } from "../../theme";
 import Header from "../../components/header.jsx"
-import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import { useState, useEffect } from 'react';
 import ApiClient from '../../services/apiClient';
+import RevenueChart from "../../components/RevChart";
 
 // ICONS
 import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
@@ -113,32 +113,7 @@ const Dashboard = () => {
                 </Box>
                 
                 {/* ROW 2 */}
-                <Box
-                    gridColumn="span 8"
-                    gridRow="span 2"
-                    backgroundColor={colors.brown[100]}
-                >
-                    <Box
-                        mt="25px"
-                        p="0 30px"
-                        display="flex"
-                        justifyContent="space-between"
-                        alignItems="center"
-                    >
-                        <Box>
-                            <Typography variant="h5" fontWeight="600">
-                                Revenue Generated
-                            </Typography>
-                            <Typography variant="h3" fontWeight="500">
-                                $59,342.00
-                            </Typography>
-                        </Box>
-
-                        <Box>
-                            <BarChart />
-                        </Box>
-                    </Box>
-                </Box>
+                <RevenueChart />
 
             </Box>
         </Box>

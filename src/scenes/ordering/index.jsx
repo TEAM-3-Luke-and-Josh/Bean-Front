@@ -191,18 +191,14 @@ export default function OrderSystem() {
 
     const handlePlaceOrder = async () => {
         if (!selectedTable || cart.length === 0) return;
-    
+        
         try {
-            const orderItems = cart.map(item => {
-                const orderItem = {
-                    itemID: item.itemID,  // Changed back to itemID to match OrderItem model
-                    quantity: item.quantity,
-                    specialInstructions: item.specialInstructions || '',
-                    selectedOptionIds: item.selectedOptions?.map(opt => opt.optionID) || []
-                };
-                console.log('Individual order item:', orderItem);
-                return orderItem;
-            });
+            const orderItems = cart.map(item => ({
+                itemID: item.itemID,
+                quantity: item.quantity,
+                specialInstructions: item.specialInstructions || '',
+                selectedOptionIds: item.selectedOptions?.map(opt => opt.optionID) || []
+            }));
     
             const orderData = {
                 tableID: selectedTable,
@@ -210,32 +206,9 @@ export default function OrderSystem() {
                 items: orderItems
             };
     
-            console.log('Final payload as string:', JSON.stringify(orderData, null, 2));
-    
-            const response = await fetch('/api/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData)
-            });
-    
-            const responseText = await response.text();  // Get raw response text
-            console.log('Raw response:', responseText);  // Log it
-    
-            let data;
-            try {
-                data = JSON.parse(responseText);  // Try to parse as JSON
-            } catch (e) {
-                console.error('Failed to parse response as JSON:', e);
-                throw new Error('Invalid response from server');
-            }
-    
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to place order');
-            }
-    
-            console.log('Order placed successfully:', data);
+            const response = await ApiClient.post('/orders', orderData);
+            
+            console.log('Order placed successfully:', response);
             setCart([]);
             setSelectedTable('');
             alert('Order placed successfully!');
@@ -514,7 +487,7 @@ export default function OrderSystem() {
                                 </Box>
                             </Box>
 
-                            {selectedItem.options?.length > 0 && (
+                            {selectedItem?.options && selectedItem.options.length > 0 && (
                                 <Box mb={3}>
                                     <Typography variant="subtitle2" mb={1}>Options</Typography>
                                     {selectedItem.options.map(option => (
