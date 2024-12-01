@@ -157,6 +157,7 @@ const Reservations = () => {
         setSelectedRes(params.row);
         setOpenModal(true);
     };
+    
     /** Closes the Reservation Modal and resets the following data for the application */
     const closeModal = () => {
         setSelectedRes(null);
