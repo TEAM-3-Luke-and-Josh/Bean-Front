@@ -14,16 +14,19 @@ import {
     MenuItem,
     FormControl,
     InputLabel,
+    Alert,
+    ListSubheader,
+    Tooltip,
     Paper
 } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { tokens } from '../../theme';
-import Header from '../../components/header';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ApiClient from '../../services/apiClient';
+import { useCart } from '../../scenes/contexts/CartContext';
 
 // Menu Images
 import avToast from '../../../src/images/menu_items/av_toast.jpg';
@@ -39,14 +42,12 @@ import steakRib from '../../../src/images/menu_items/steak_rib.jpg';
 import steakSalm from '../../../src/images/menu_items/steak_salm.jpg';
 import stickPud from '../../../src/images/menu_items/sticky_pud.jpg';
 
-
-
 export default function OrderSystem() {
+    const { cart, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const [menu, setMenu] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [cart, setCart] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -56,6 +57,7 @@ export default function OrderSystem() {
     const [selectedOptions, setSelectedOptions] = useState([]);
     const [specialInstructions, setSpecialInstructions] = useState('');
     const [tables, setTables] = useState([]);
+    const [apiStatus, setApiStatus] = useState(null);
 
     const categories = ['all', 'breakfast', 'lunch mains', 'dinner mains', 'sides', 'beverages', 'desserts'];
 
@@ -93,7 +95,6 @@ export default function OrderSystem() {
         fetchTables();
     }, []);
     
-
     // Update cart total whenever cart changes
     useEffect(() => {
         const total = cart.reduce((sum, item) => {
@@ -104,6 +105,16 @@ export default function OrderSystem() {
         }, 0);
         setCartTotal(total);
     }, [cart]);
+
+    const groupTablesByArea = (tables) => {
+        return tables.reduce((acc, table) => {
+            if (!acc[table.area]) {
+                acc[table.area] = [];
+            }
+            acc[table.area].push(table);
+            return acc;
+        }, {});
+    };
 
     const mapImageUrl = (path) => {
         // Map the category and name to the appropriate image file
@@ -138,17 +149,11 @@ export default function OrderSystem() {
     };
 
     const handleRemoveFromCart = (index) => {
-        setCart(prev => prev.filter((_, i) => i !== index));
+        removeFromCart(index);
     };
 
     const handleUpdateQuantity = (index, increment) => {
-        setCart(prev => prev.map((item, i) => {
-            if (i === index) {
-                const newQuantity = Math.max(1, item.quantity + increment);
-                return { ...item, quantity: newQuantity };
-            }
-            return item;
-        }));
+        updateQuantity(index, increment);
     };
 
     const handleToggleOption = (option) => {
@@ -177,15 +182,7 @@ export default function OrderSystem() {
     };
     
     const handleConfirmAddToCart = (item, quantity, selectedOptions, specialInstructions) => {
-        console.log('Item being added to cart:', {
-            itemID: item.itemID,  // Check if this exists
-            menuItemItemID: item.menuItemItemID, // Check if this exists instead
-            item,
-            quantity,
-            selectedOptions,
-            specialInstructions
-        });
-        setCart(prev => [...prev, { ...item, quantity, selectedOptions, specialInstructions }]);
+        addToCart({ ...item, quantity, selectedOptions, specialInstructions });
         handleModalClose();
     };
 
@@ -206,40 +203,91 @@ export default function OrderSystem() {
                 items: orderItems
             };
     
-            const response = await ApiClient.post('/orders', orderData);
+            await ApiClient.post('/orders', orderData);
             
-            console.log('Order placed successfully:', response);
-            setCart([]);
+            clearCart();
             setSelectedTable('');
-            alert('Order placed successfully!');
+            setApiStatus('Order placed successfully');
+
+            // Clear success message after delay
+            setTimeout(() => {
+                setApiStatus(null);
+            }, 3000);
     
         } catch (error) {
             console.error('Error placing order:', error);
             alert(`Failed to place order: ${error.message}`);
         }
     };
+
+    useEffect(() => {
+        const total = cart.reduce((sum, item) => {
+            const itemTotal = item.price * item.quantity;
+            const optionsTotal = item.selectedOptions?.reduce((optSum, opt) => 
+                optSum + opt.priceModifier, 0) || 0;
+            return sum + (itemTotal + (optionsTotal * item.quantity));
+        }, 0);
+        setCartTotal(total);
+    }, [cart]);
     
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
 
+            {/* Show floating alert when no table is selected */}
+            {!selectedTable && (
+                <Alert 
+                    severity="info"
+                    sx={{
+                        position: 'fixed',
+                        bottom: 20,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1000,
+                        boxShadow: 3
+                    }}
+                >
+                    Please select a table to start taking orders
+                </Alert>
+            )}
+
             {/* Main Content Area */}
             <Box sx={{ flexGrow: 1, p: 3, pr: '220px' }}>
 
-                {/* Header with inline table selection */}
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                    <Header title="Place Order" subtitle="Order food and drinks" />
-                    <FormControl sx={{ minWidth: 400 }}>
-                        <InputLabel>Select Table</InputLabel>
+                {/* Show ApiStatus if present */}
+                {apiStatus && (
+                    <Typography 
+                        mt={2} 
+                        color={apiStatus.includes('Error') ? 'error' : 'success.main'}
+                    >
+                        {apiStatus}
+                    </Typography>
+                )}
+
+                {/* Modified Header with prominent table selection */}
+                <Box mb={4}>
+                    <FormControl 
+                        fullWidth 
+                        sx={{ 
+                            mt: 2,
+                            border: !selectedTable ? `2px solid ${colors.green[500]}` : 'none',
+                            borderRadius: 1,
+                            p: !selectedTable ? 1 : 0
+                        }}
+                    >
+                        <InputLabel>Select a table to begin ordering</InputLabel>
                         <Select
                             value={selectedTable}
-                            label="Select Table"
+                            label="Select a table to begin ordering"
                             onChange={(e) => setSelectedTable(e.target.value)}
                         >
-                            {tables.map((table) => (
-                                <MenuItem key={table.tableID} value={table.tableID}>
-                                    Table {table.tableID} ({table.area})
-                                </MenuItem>
-                            ))}
+                            {Object.entries(groupTablesByArea(tables)).map(([area, areaTables]) => [
+                                <ListSubheader key={area}>{area} Area</ListSubheader>,
+                                ...areaTables.map((table) => (
+                                    <MenuItem key={table.tableID} value={table.tableID}>
+                                        Table {table.tableID} (Seats {table.capacity})
+                                    </MenuItem>
+                                ))
+                            ])}
                         </Select>
                     </FormControl>
                 </Box>
@@ -268,41 +316,53 @@ export default function OrderSystem() {
                     display="grid" 
                     gridTemplateColumns="repeat(2, 1fr)"
                     gap={3}
-                    >
+                >
                     {menu
                         .filter(item => 
-                        selectedCategory === 'all' || 
-                        item.categoryName.toLowerCase() === selectedCategory.toLowerCase()
+                            selectedCategory === 'all' || 
+                            item.categoryName.toLowerCase() === selectedCategory.toLowerCase()
                         )
                         .map(item => (
-                        <Card key={item.itemID}>
-                            <CardMedia 
-                            component="img" 
-                            height="200" 
-                            image={mapImageUrl(item.imageUrl)} 
-                            alt={item.name} 
-                            />
-                            <CardContent>
-                            <Typography gutterBottom variant="h5">{item.name}</Typography>
-                            <Typography variant="body2" color="text.secondary" mb={2}>
-                                {item.description}
-                            </Typography>
-                            <Typography variant="h6" color={colors.green[500]} mb={2}>
-                                ${item.price.toFixed(2)}
-                            </Typography>
-                            <Button 
-                                fullWidth 
-                                variant="contained" 
-                                sx={{backgroundColor: colors.green[500]}} 
-                                onClick={() => handleAddToCart(item)}
+                            <Tooltip 
+                                key={item.itemID}
+                                title={!selectedTable ? "Please select a table first" : ""}
+                                placement="top"
                             >
-                                Add to Order
-                            </Button>
-                            </CardContent>
-                        </Card>
+                                <Card sx={{ opacity: !selectedTable ? 0.7 : 1 }}>
+                                    <CardMedia 
+                                        component="img" 
+                                        height="200" 
+                                        image={mapImageUrl(item.imageUrl)} 
+                                        alt={item.name} 
+                                    />
+                                    <CardContent>
+                                        <Typography gutterBottom variant="h5">{item.name}</Typography>
+                                        <Typography variant="body2" color="text.secondary" mb={2}>
+                                            {item.description}
+                                        </Typography>
+                                        <Typography variant="h6" color={colors.green[500]} mb={2}>
+                                            ${item.price.toFixed(2)}
+                                        </Typography>
+                                        <Button 
+                                            fullWidth 
+                                            variant="contained" 
+                                            sx={{
+                                                backgroundColor: colors.green[500],
+                                                '&:disabled': {
+                                                    backgroundColor: colors.green[200]
+                                                }
+                                            }}
+                                            disabled={!selectedTable}
+                                            onClick={() => handleAddToCart(item)}
+                                        >
+                                            Add to Order
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </Tooltip>
                         ))}
                     </Box>
-            </Box>
+                </Box>
 
             {/* Order Summary Sidebar */}
             <Paper
